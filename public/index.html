@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Websocket Chat</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  </head>
+  <body>
+    <script src="/chat.js"></script>
+
+    <div id="chat">
+      <div id="chat-window">
+        <ul>
+          <li id="active" class="active">
+            <h2>Users Online:</h2>
+            <h2 id="count">0</h2>
+          </li>
+        </ul>
+        <div id="output" class="output">
+          <p><em id="typing"></em></p>
+        </div>
+      </div>
+      <input type="text" id="name" placeholder="User Name" />
+      <input type="text" id="message" placeholder="Message" />
+      <button id="send">Send</button>
+    </div>
+  </body>
+</html>
