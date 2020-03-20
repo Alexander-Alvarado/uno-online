@@ -1,6 +1,4 @@
-var socket = io.connect(
-  "http://localhost:5000/" || "https://online-uno.herokuapp.com/"
-);
+var socket = io.connect("https://online-uno.herokuapp.com/");
 
 $(function() {
   $("main").hide();
