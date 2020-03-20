@@ -1,5 +1,8 @@
-var socket = io.connect("http://localhost:5000/");
-//var socket = io.connect("https://online-uno.herokuapp.com/");
+try {
+  var socket = io.connect("http://localhost:5000/");
+} catch (e) {
+  var socket = io.connect("https://online-uno.herokuapp.com/");
+}
 
 $(function() {
   $("main").hide();
