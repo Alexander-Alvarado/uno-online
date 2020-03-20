@@ -3,7 +3,7 @@ var socket = require("socket.io");
 
 var app = express();
 var PORT = process.env.PORT || 5000;
-var HOSTED = process.env.HOSTED;
+
 var server = app.listen(PORT, function() {
   console.log("listening on port", PORT);
 });
@@ -16,7 +16,6 @@ var activeRooms = [];
 var players = [];
 
 io.on("connection", function(socket) {
-  socket.emit("env", HOSTED);
   socket.on("newGame", function(data) {
     var roomKey;
 

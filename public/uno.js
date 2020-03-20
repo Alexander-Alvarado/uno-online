@@ -1,9 +1,5 @@
-var env;
-if (env != null) {
-  var socket = io.connect("https://online-uno.herokuapp.com/");
-} else if (env === null) {
-  var socket = io.connect("http://localhost:5000/");
-}
+var socket = io.connect("http://localhost:5000/");
+//var socket = io.connect("https://online-uno.herokuapp.com/");
 
 $(function() {
   $("main").hide();
@@ -82,11 +78,6 @@ $(function() {
     $("#lobby").show();
     $("#startGame").hide();
   }
-
-  socket.on("env", function(HOSTED) {
-    env = HOSTED;
-    console.log(env);
-  });
 
   socket.on("roomFull", function() {
     console.log("Room Closed");
