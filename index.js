@@ -97,7 +97,8 @@ io.on("connection", function(socket) {
           ],
           wild: [{ ww: 4 }, { wd: 4 }]
         }
-      ]
+      ],
+      gameStarted: false
     });
 
     var room = activeRooms[activeRooms.findIndex(i => i.room === roomKey)];
@@ -156,6 +157,7 @@ io.on("connection", function(socket) {
     var room = findRoomIndex(roomKey);
 
     activeRooms[room].status = "closed";
+    activeRooms[room].gameStarted = true;
     console.log("Active rooms", activeRooms);
 
     io.in(roomKey).emit("gameStart", activeRooms[room]);
@@ -175,8 +177,9 @@ io.on("connection", function(socket) {
         activeRooms[room].players.findIndex(i => i.players === player),
         1
       );
-
-      activeRooms[room].status = "open";
+      if (activeRooms[room].gameStarted != true) {
+        activeRooms[room].status = "open";
+      }
 
       if (activeRooms[room].players.length === 0) {
         activeRooms.splice(room, 1);
