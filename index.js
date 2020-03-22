@@ -173,9 +173,17 @@ io.on("connection", function(socket) {
       roomKey = players[player].roomKey;
       room = findRoomIndex(roomKey);
 
-      players.splice(player, 1);
+      var removedPlayer = players.splice(player, 1);
 
       activeRooms[room].players.splice(activeRooms[room].players[player], 1);
+
+      if (activeRooms[room].host.id === removedPlayer[0].id) {
+        console.log("host left, new host:", activeRooms[room].players[0]);
+        activeRooms[room].host = activeRooms[room].players[0];
+        var hostId = ("${%s}", activeRooms[room].host.id);
+        io.to(hostId).emit("host");
+      }
+
       if (activeRooms[room].gameStarted != true) {
         activeRooms[room].status = "open";
       }
@@ -185,7 +193,7 @@ io.on("connection", function(socket) {
       }
     }
     io.in(roomKey).emit("roomInfo", activeRooms[room]);
-    console.log("Active players", players);
-    console.log("Active rooms", activeRooms);
+    console.log("active players", players);
+    console.log("active rooms", activeRooms);
   });
 });

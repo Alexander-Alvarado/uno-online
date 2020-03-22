@@ -112,6 +112,11 @@ $(function() {
     }
   });
 
+  socket.on("host", function() {
+    console.log("you are the new host");
+    $("#startGame").show();
+  });
+
   socket.on("gameStart", function(room) {
     console.log("game starting");
     $("#lobby").hide();
