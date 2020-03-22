@@ -12,6 +12,10 @@ body {
 ul {
   list-style: none;
 }
+.joinableRooms {
+  list-style: none;
+  display: flex;
+}
 
 .side {
   display: flex;

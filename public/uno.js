@@ -1,5 +1,5 @@
-var socket = io.connect("http://localhost:5000/");
-//var socket = io.connect("https://online-uno.herokuapp.com/");
+//var socket = io.connect("http://localhost:5000/");
+var socket = io.connect("https://online-uno.herokuapp.com/");
 
 $(function() {
   $("main").hide();
@@ -21,22 +21,6 @@ $(function() {
       if (event.which == 13 && $("#name").val() != "") {
         userName = $("#name").val();
         newPlayer(userName);
-      }
-    }
-  });
-
-  $("#roomKeySubmit").click(function() {
-    if ($("#roomKey").val() != "") {
-      roomKey = $("#roomKey").val();
-      joinGame(roomKey.toLowerCase(), userName);
-    }
-  });
-
-  $("#roomKey").on({
-    keydown: function(event) {
-      if (event.which == 13 && $("#roomKey").val() != "") {
-        roomKey = $("#roomKey").val();
-        joinGame(roomKey.toLowerCase(), userName);
       }
     }
   });
@@ -69,7 +53,7 @@ $(function() {
     }
   }
 
-  function joinGame(roomKey, userName) {
+  function joinGame(roomKey) {
     var data = { userName: userName, roomKey: roomKey };
 
     socket.emit("joinGame", data);
@@ -87,7 +71,7 @@ $(function() {
   });
 
   socket.on("roomInfo", function(room) {
-    console.clear();
+    //console.clear();
     console.log("room info:", room);
     $("#roomKeyDisplayValue").html("<h2> " + room.room + " </h2>");
     $("#count").html("<h2> " + room.players.length + " </h2>");
@@ -97,20 +81,27 @@ $(function() {
     }
   });
 
-  socket.on("availableRooms", function(activeRooms) {
+  socket.on("availableRooms", function(joinableRooms) {
     $("#joinableRooms").text("");
-    if (activeRooms.length === 0) {
+    if (joinableRooms.length === 0) {
       $("#joinableRooms").append("<h2>No open rooms </h2>");
     }
-    for (var i = 0; i < activeRooms.length; i++) {
+    for (var i = 0; i < joinableRooms.length; i++) {
+      var roomKey = joinableRooms[i].room;
       $("#joinableRooms").append(
-        "<h2>Room: " +
-          activeRooms[i].room +
+        "<li><h2>Room: " +
+          roomKey +
           ", Players: " +
-          activeRooms[i].players.length +
-          "</<h2><br/>"
+          joinableRooms[i].players.length +
+          "<button class='lobbyJoin' value='" +
+          roomKey +
+          "'>Join</button></h2></li>"
       );
     }
+  });
+
+  $("#joinableRooms").on("click", "button", function() {
+    joinGame($(this).attr("value"));
   });
 
   socket.on("host", function() {
@@ -119,7 +110,7 @@ $(function() {
   });
 
   socket.on("gameStart", function(room) {
-    console.log("game starting");
+    console.log("game starting", room);
     $("#lobby").hide();
     $("main").show();
     for (var i = 0; i < room.players.length; i++) {
@@ -138,9 +129,4 @@ $(function() {
     $("#lobby").hide();
     $("#roomSelect").show();
   });
-
-  /* socket.on("clientCount", function(activeClients) {
-    $("#count").text(activeClients);
-    console.log("new client count:", activeClients);
-  }); */
 });
