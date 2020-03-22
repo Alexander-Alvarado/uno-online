@@ -177,8 +177,10 @@ io.on("connection", function(socket) {
 
       activeRooms[room].players.splice(activeRooms[room].players[player], 1);
 
-      if (activeRooms[room].host.id === removedPlayer[0].id) {
-        console.log("host left, new host:", activeRooms[room].players[0]);
+      if (
+        activeRooms[room].host.id === removedPlayer[0].id &&
+        activeRooms[room].players.length != 0
+      ) {
         activeRooms[room].host = activeRooms[room].players[0];
         var hostId = ("${%s}", activeRooms[room].host.id);
         io.to(hostId).emit("host");
