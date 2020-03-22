@@ -138,7 +138,7 @@ io.on("connection", function(socket) {
 
   function newPlayer(data, roomKey) {
     players.push({ id: socket.id, userName: data, roomKey: roomKey });
-    console.log(players);
+    console.log("active players", players);
   }
 
   function findPlayerIndex() {
@@ -171,12 +171,10 @@ io.on("connection", function(socket) {
     if (player != -1) {
       roomKey = players[player].roomKey;
       room = findRoomIndex(roomKey);
-      player = players.splice(player, 1);
 
-      activeRooms[room].players.splice(
-        activeRooms[room].players.findIndex(i => i.players === player),
-        1
-      );
+      players.splice(player, 1);
+
+      activeRooms[room].players.splice(activeRooms[room].players[player], 1);
       if (activeRooms[room].gameStarted != true) {
         activeRooms[room].status = "open";
       }
