@@ -25,6 +25,22 @@ $(function() {
     }
   });
 
+  $("#roomKeySubmit").click(function() {
+    if ($("#roomKey").val() != "") {
+      roomKey = $("#roomKey").val();
+      joinGame(roomKey.toLowerCase());
+    }
+  });
+
+  $("#roomKey").on({
+    keydown: function(event) {
+      if (event.which == 13 && $("#roomKey").val() != "") {
+        roomKey = $("#roomKey").val();
+        joinGame(roomKey.toLowerCase());
+      }
+    }
+  });
+
   $("#backToLobbySelect").click(function() {
     $("#roomSelect").hide();
     $("#lobbySelect").show();
