@@ -31,6 +31,7 @@ io.on("connection", function(socket) {
     activeRooms.push({
       room: roomKey,
       status: "open",
+      host: players[player],
       players: [players[player]],
       deck: [
         { cards: 108 },
