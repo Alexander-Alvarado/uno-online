@@ -105,8 +105,7 @@ io.on("connection", function(socket) {
     var room = activeRooms[activeRooms.findIndex(i => i.room === roomKey)];
     socket.join(players[player].roomKey);
     io.in(players[player].roomKey).emit("roomInfo", room);
-
-    console.log("active game rooms:", activeRooms);
+    console.log("active rooms:", activeRooms);
   });
 
   socket.on("searching", function() {
@@ -128,7 +127,7 @@ io.on("connection", function(socket) {
           activeRooms[room].status = "closed";
         }
         io.in(players[player].roomKey).emit("roomInfo", activeRooms[room]);
-        console.log("active game rooms:", activeRooms);
+        console.log("active rooms:", activeRooms);
       } else if (activeRooms[room].status === "closed") {
         socket.emit("roomFull");
       }
@@ -139,7 +138,10 @@ io.on("connection", function(socket) {
 
   function newPlayer(data, roomKey) {
     players.push({ id: socket.id, userName: data, roomKey: roomKey });
-    console.log("active players", players);
+    console.log(
+      "-----------------------------------------------------------------------------------------"
+    );
+    console.log("active players:", players);
   }
 
   function findPlayerIndex() {
@@ -159,7 +161,11 @@ io.on("connection", function(socket) {
 
     activeRooms[room].status = "closed";
     activeRooms[room].gameStarted = true;
-    console.log("Active rooms", activeRooms);
+    console.log(
+      "-----------------------------------------------------------------------------------------"
+    );
+    console.log("active players:", players);
+    console.log("active rooms:", activeRooms);
 
     io.in(roomKey).emit("gameStart", activeRooms[room]);
   });
@@ -175,10 +181,13 @@ io.on("connection", function(socket) {
 
       var removedPlayer = players.splice(player, 1);
 
-      activeRooms[room].players.splice(activeRooms[room].players[player], 1);
+      activeRooms[room].players.splice(
+        activeRooms[room].players.findIndex(i => i.id === removedPlayer[0].id),
+        1
+      );
 
       if (
-        activeRooms[room].host.id === removedPlayer[0].id &&
+        activeRooms[room].host === removedPlayer[0] &&
         activeRooms[room].players.length != 0
       ) {
         activeRooms[room].host = activeRooms[room].players[0];
@@ -195,7 +204,10 @@ io.on("connection", function(socket) {
       }
     }
     io.in(roomKey).emit("roomInfo", activeRooms[room]);
-    console.log("active players", players);
-    console.log("active rooms", activeRooms);
+    console.log(
+      "-----------------------------------------------------------------------------------------"
+    );
+    console.log("active players:", players);
+    console.log("active rooms:", activeRooms);
   });
 });

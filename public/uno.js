@@ -1,5 +1,5 @@
-//var socket = io.connect("http://localhost:5000/");
-var socket = io.connect("https://online-uno.herokuapp.com/");
+var socket = io.connect("http://localhost:5000/");
+//var socket = io.connect("https://online-uno.herokuapp.com/");
 
 $(function() {
   $("main").hide();
@@ -28,7 +28,7 @@ $(function() {
   $("#roomKeySubmit").click(function() {
     if ($("#roomKey").val() != "") {
       roomKey = $("#roomKey").val();
-      joinGame(roomKey, userName);
+      joinGame(roomKey.toLowerCase(), userName);
     }
   });
 
@@ -36,7 +36,7 @@ $(function() {
     keydown: function(event) {
       if (event.which == 13 && $("#roomKey").val() != "") {
         roomKey = $("#roomKey").val();
-        joinGame(roomKey, userName);
+        joinGame(roomKey.toLowerCase(), userName);
       }
     }
   });
@@ -87,6 +87,7 @@ $(function() {
   });
 
   socket.on("roomInfo", function(room) {
+    console.clear();
     console.log("room info:", room);
     $("#roomKeyDisplayValue").html("<h2> " + room.room + " </h2>");
     $("#count").html("<h2> " + room.players.length + " </h2>");
@@ -138,8 +139,8 @@ $(function() {
     $("#roomSelect").show();
   });
 
-  socket.on("clientCount", function(activeClients) {
+  /* socket.on("clientCount", function(activeClients) {
     $("#count").text(activeClients);
     console.log("new client count:", activeClients);
-  });
+  }); */
 });
