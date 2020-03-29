@@ -1,5 +1,5 @@
-//var socket = io.connect("http://localhost:5000/");
-var socket = io.connect("https://online-uno.herokuapp.com/");
+var socket = io.connect("http://localhost:5000/");
+//var socket = io.connect("https://online-uno.herokuapp.com/");
 
 $(function() {
   $("main").hide();
@@ -97,6 +97,11 @@ $(function() {
     }
   });
 
+  socket.on("updateInfo", function(room) {
+    console.clear();
+    console.log("room info:", room);
+  });
+
   socket.on("availableRooms", function(joinableRooms) {
     $("#joinableRooms").text("");
     if (joinableRooms.length === 0) {
@@ -138,6 +143,8 @@ $(function() {
           "</li>"
       );
     }
+
+    socket.emit("deal");
   });
 
   socket.on("invalidRoom", function() {

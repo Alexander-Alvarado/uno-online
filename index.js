@@ -27,7 +27,7 @@ io.on("connection", function(socket) {
     } while (joinableRooms.includes(roomKey) === true);
 
     newPlayer(data, roomKey);
-    var player = findPlayerIndex();
+    var player = findGlobalPlayerIndex();
 
     joinableRooms.push({
       room: roomKey,
@@ -35,7 +35,115 @@ io.on("connection", function(socket) {
       host: players[player],
       players: [players[player]],
       deck: [
-        { cards: 108 },
+        "r0",
+        "r1",
+        "r1",
+        "r2",
+        "r2",
+        "r3",
+        "r3",
+        "r4",
+        "r4",
+        "r5",
+        "r5",
+        "r6",
+        "r6",
+        "r7",
+        "r7",
+        "r8",
+        "r8",
+        "r9",
+        "r9",
+        "rr",
+        "rr",
+        "rd",
+        "rd",
+        "rs",
+        "rs",
+        "y0",
+        "y1",
+        "y1",
+        "y2",
+        "y2",
+        "y3",
+        "y3",
+        "y4",
+        "y4",
+        "y5",
+        "y5",
+        "y6",
+        "y6",
+        "y7",
+        "y7",
+        "y8",
+        "y8",
+        "y9",
+        "y9",
+        "yr",
+        "yr",
+        "yd",
+        "yd",
+        "ys",
+        "ys",
+        "b0",
+        "b1",
+        "b1",
+        "b2",
+        "b2",
+        "b3",
+        "b3",
+        "b4",
+        "b4",
+        "b5",
+        "b5",
+        "b6",
+        "b6",
+        "b7",
+        "b7",
+        "b8",
+        "b8",
+        "b9",
+        "b9",
+        "br",
+        "br",
+        "bd",
+        "bd",
+        "bs",
+        "bs",
+        "g0",
+        "g1",
+        "g1",
+        "g2",
+        "g2",
+        "g3",
+        "g3",
+        "g4",
+        "g4",
+        "g5",
+        "g5",
+        "g6",
+        "g6",
+        "g7",
+        "g7",
+        "g8",
+        "g8",
+        "g9",
+        "g9",
+        "gr",
+        "gr",
+        "gd",
+        "gd",
+        "gs",
+        "gs",
+        "ww",
+        "ww",
+        "ww",
+        "ww",
+        "wd",
+        "wd",
+        "wd",
+        "wd"
+        /*  { cards: 108 },
         {
           red: [
             { 0: 1 },
@@ -98,8 +206,9 @@ io.on("connection", function(socket) {
             { s: 2 }
           ],
           wild: [{ ww: 4 }, { wd: 4 }]
-        }
+        } */
       ],
+      discarded: [],
       gameStarted: false
     });
 
@@ -120,14 +229,14 @@ io.on("connection", function(socket) {
     var room = findJoinableRoomIndex(data.roomKey);
     try {
       if (
-        joinableRooms[room].players.length < 5 &&
+        joinableRooms[room].players.length < 4 &&
         joinableRooms[room].status === "open"
       ) {
         newPlayer(data.userName, data.roomKey);
-        player = findPlayerIndex();
+        player = findGlobalPlayerIndex();
         joinableRooms[room].players.push(players[player]);
         socket.join(players[player].roomKey);
-        if (joinableRooms[room].players.length === 5) {
+        if (joinableRooms[room].players.length === 4) {
           joinableRooms[room].status = "closed";
         }
 
@@ -151,8 +260,12 @@ io.on("connection", function(socket) {
     console.log("active players:", players);
   }
 
-  function findPlayerIndex() {
+  function findGlobalPlayerIndex() {
     return players.findIndex(i => i.id === socket.id);
+  }
+
+  function findRoomPlayerIndex(room) {
+    return activeRooms[room].players.findIndex(i => i.id === socket.id);
   }
 
   function findJoinableRoomIndex(roomKey) {
@@ -164,7 +277,7 @@ io.on("connection", function(socket) {
   }
 
   socket.on("gameStart", function() {
-    var player = findPlayerIndex();
+    var player = findGlobalPlayerIndex();
     var roomKey = players[player].roomKey;
     var room = findJoinableRoomIndex(roomKey);
 
@@ -190,15 +303,61 @@ io.on("connection", function(socket) {
   });
 
   socket.on("draw", function() {
-    var player = findPlayerIndex();
+    var player = findGlobalPlayerIndex();
     var roomKey = players[player].roomKey;
     var room = findActiveRoomIndex(roomKey);
+    player = findRoomPlayerIndex(room);
 
-    console.log("%s draws", activeRooms[room].players[player].userName);
+    var card = Math.floor(Math.random() * activeRooms[room].deck.length);
+
+    activeRooms[room].players[player].hand.push(activeRooms[room].deck[card]);
+
+    activeRooms[room].deck.splice(
+      activeRooms[room].deck.findIndex(i => i === activeRooms[room].deck[card]),
+      1
+    );
+
+    console.log(
+      activeRooms[room].players[player].userName +
+        "'s hand:" +
+        activeRooms[room].players[player].hand,
+      "cards in deck:" + activeRooms[room].deck.length
+    );
+
+    io.in(players[player].roomKey).emit("updateInfo", activeRooms[room]);
+  });
+
+  socket.on("deal", function() {
+    var player = findGlobalPlayerIndex();
+    var roomKey = players[player].roomKey;
+    var room = findActiveRoomIndex(roomKey);
+    player = findRoomPlayerIndex(room);
+
+    for (var i = 0; i < 7; i++) {
+      var card = Math.floor(Math.random() * activeRooms[room].deck.length);
+
+      activeRooms[room].players[player].hand.push(activeRooms[room].deck[card]);
+
+      activeRooms[room].deck.splice(
+        activeRooms[room].deck.findIndex(
+          i => i === activeRooms[room].deck[card]
+        ),
+        1
+      );
+    }
+
+    console.log(
+      activeRooms[room].players[player].userName +
+        "'s hand:" +
+        activeRooms[room].players[player].hand,
+      "cards in deck:" + activeRooms[room].deck.length
+    );
+
+    io.in(players[player].roomKey).emit("updateInfo", activeRooms[room]);
   });
 
   socket.on("disconnect", function() {
-    var player = findPlayerIndex();
+    var player = findGlobalPlayerIndex();
     var roomKey;
     var room;
 

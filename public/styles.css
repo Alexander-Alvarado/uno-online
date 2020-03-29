@@ -12,6 +12,7 @@ body {
 ul {
   list-style: none;
 }
+
 .joinableRooms {
   list-style: none;
   display: flex;
@@ -26,6 +27,43 @@ ul {
   /* width: 100px; */
 }
 
-.card#deck {
+.playersDisplay {
+  grid-area: players;
+}
+.hand {
+  grid-area: hand;
+  text-align: center;
+}
+
+.hand img {
   width: 100px;
+  height: 150px;
+}
+
+.deck {
+  grid-area: deck;
+  text-align: right;
+  padding: 0px;
+}
+
+.deck img {
+  width: 250px;
+}
+
+.current {
+  grid-area: current;
+  text-align: center;
+}
+
+.current img {
+  width: 150px;
+  height: 150px;
+}
+
+.container {
+  display: grid;
+  grid-template-areas:
+    "players current deck"
+    "players current ."
+    "hand hand hand";
 }
