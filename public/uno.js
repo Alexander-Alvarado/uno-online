@@ -99,7 +99,7 @@ $(function() {
 
   socket.on("updatePlayers", function(room) {
     //console.clear();
-    //console.log("room info:", room);
+    //console.log(room);
     $("#playersDisplay").html("");
     for (var i = 0; i < room.players.length; i++) {
       if (room.players[i].hand.length <= 9) {
@@ -171,7 +171,9 @@ $(function() {
 
     var card = "./cards/" + room.currentCard + ".svg";
 
-    $("#currentCard").attr("src", card);
+    $("#currentCard")
+      .attr("src", card)
+      .attr("alt", room.currentCard);
 
     socket.emit("deal");
   });
@@ -179,7 +181,9 @@ $(function() {
   socket.on("currentCard", function(room) {
     var card = "./cards/" + room.currentCard + ".svg";
 
-    $("#currentCard").attr("src", card);
+    $("#currentCard")
+      .attr("src", card)
+      .attr("alt", room.currentCard);
   });
 
   socket.on("hand", function(hand) {
@@ -214,25 +218,37 @@ $(function() {
   });
 
   socket.on("yourTurn", function(room) {
-    $("#currentPlayer").text("Your turn");
-    var playedCard;
+    if (userName === room.players[room.playerTurn].userName) {
+      $("#currentPlayer").text("Your turn");
+      var playedCard;
 
-    $("#deck").on("click", function() {
-      socket.emit("draw");
-    });
+      $("#deck").on("click", function() {
+        socket.emit("draw");
+      });
 
-    $("#playerHand").on("click", "img", function() {
-      playedCard = $(this).attr("alt");
+      $("#playerHand").on("click", "img", function() {
+        playedCard = $(this).attr("alt");
+        console.clear();
+        if (
+          playedCard.substring(0, 1) ===
+            $("#currentCard")
+              .attr("alt")
+              .substring(0, 1) ||
+          playedCard.substring(1, 2) ===
+            $("#currentCard")
+              .attr("alt")
+              .substring(1, 2)
+        ) {
+          console.log("match");
+          socket.emit("handleTurn", playedCard);
+        }
 
-      if (
-        playedCard === "ww" ||
-        playedCard === "wd" ||
-        playedCard.substring(0, 1) === room.currentCard.substring(0, 1) ||
-        playedCard.substring(1, 2) === room.currentCard.substring(1, 2)
-      ) {
-        socket.emit("handleTurn", playedCard);
-      }
-    });
+        if (playedCard === "ww" || playedCard === "wd") {
+          console.log("wild");
+          socket.emit("handleTurn", playedCard);
+        }
+      });
+    }
   });
 
   socket.on("wildChoose", function() {
