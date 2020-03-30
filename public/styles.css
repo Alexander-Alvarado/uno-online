@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css?family=Montserrat&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Roboto:100&display=swap");
 
 body {
   background-color: lightslategray;
@@ -22,13 +23,38 @@ ul {
   display: flex;
 }
 
-.card {
+.playerList {
   height: 150px;
-  /* width: 100px; */
+  width: 100px;
+  background-image: url(./cards/back.svg);
+  background-size: 100px 150px;
+}
+
+.text {
+  font-family: "Roboto", sans-serif;
+  font-size: 48px;
+  color: white;
+}
+
+.text-cardCountSingle {
+  margin-left: 30px;
+  margin-top: 40px;
+}
+
+.text-cardCountDouble {
+  margin-left: 15px;
+  margin-top: 40px;
+}
+
+.text-playerName {
+  font-weight: 300;
+  margin-left: 10px;
+  margin-top: 40px;
 }
 
 .playersDisplay {
   grid-area: players;
+  height: 680px;
 }
 .hand {
   grid-area: hand;
@@ -38,6 +64,7 @@ ul {
 .hand img {
   width: 100px;
   height: 150px;
+  padding: 5px;
 }
 
 .deck {
@@ -47,7 +74,18 @@ ul {
 }
 
 .deck img {
+  position: relative;
   width: 250px;
+  z-index: 1;
+}
+
+.deck p {
+  position: relative;
+  z-index: 2;
+  bottom: 55%;
+  right: 15.5%;
+  padding: 0px;
+  margin: 0px;
 }
 
 .current {
@@ -55,15 +93,28 @@ ul {
   text-align: center;
 }
 
-.current img {
-  width: 150px;
-  height: 150px;
+.currentCard {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  top: 10%;
 }
+
+.wild {
+  grid-area: wild;
+  text-align: center;
+}
+
+/* .playerTurn {
+  text-align: center;
+  grid-area: turn;
+} */
 
 .container {
   display: grid;
   grid-template-areas:
     "players current deck"
-    "players current ."
+    "players current wild"
+    "players current wild"
     "hand hand hand";
 }

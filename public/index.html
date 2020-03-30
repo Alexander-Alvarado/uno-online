@@ -17,18 +17,25 @@
     <script src="uno.js"></script>
 
     <main class="container">
-      <div id="playersDisplay"></div>
-      <div class="hand">
-        <img src="./cards/r7.svg" alt="card1" />
-        <img src="./cards/rs.svg" alt="card2" />
-        <img src="./cards/r0.svg" alt="card3" />
-        <img src="./cards/g9.svg" alt="card4" />
-        <img src="./cards/r7.svg" alt="card5" />
-        <img src="./cards/y8.svg" alt="card6" />
-        <img src="./cards/y4.svg" alt="card7" />
+      <div id="playersDisplay" class="playersDisplay"></div>
+      <div id="playerHand" class="hand"></div>
+      <div class="current">
+        <p id="currentPlayer" class="text">Current player turn</p>
+        <img src="#" alt="current card" class="currentCard" id="currentCard" />
       </div>
-      <div class="current"><img src="./cards/g4.svg" alt="current card" /></div>
-      <div class="deck"><img src="./cards/deck.svg" alt="card deck" /></div>
+      <div class="deck" id="deck">
+        <img src="./cards/deck.svg" alt="card deck" />
+        <p id="deckCount" class="text"></p>
+      </div>
+      <div id="wildSelect" class="wild">
+        <p class="text">Select new color</p>
+        <div id="colorSelect">
+          <img src="./cards/red.svg" alt="red" />
+          <img src="./cards/blue.svg" alt="blue" />
+          <img src="./cards/yellow.svg" alt="yellow" />
+          <img src="./cards/green.svg" alt="green" />
+        </div>
+      </div>
     </main>
 
     <div id="lobbySelect">
@@ -67,7 +74,7 @@
     </div>
 
     <div id="roomSelect">
-      <h1>Select Room<!-- <button id="backToLobbySelect">Back</button> --></h1>
+      <h1>Select Room</h1>
       <h1>Enter Room Key:</h1>
       <input type="text" id="roomKey" placeholder="Room Key" />
       <button id="roomKeySubmit">Ok</button>

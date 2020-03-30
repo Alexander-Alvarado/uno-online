@@ -88,7 +88,7 @@ $(function() {
 
   socket.on("roomInfo", function(room) {
     //console.clear();
-    console.log("room info:", room);
+    //console.log("room info:", room);
     $("#roomKeyDisplayValue").html("<h2> " + room.room + " </h2>");
     $("#count").html("<h2> " + room.players.length + " </h2>");
     $("#players").text("");
@@ -97,9 +97,33 @@ $(function() {
     }
   });
 
-  socket.on("updateInfo", function(room) {
-    console.clear();
-    console.log("room info:", room);
+  socket.on("updatePlayers", function(room) {
+    //console.clear();
+    //console.log("room info:", room);
+    $("#playersDisplay").html("");
+    for (var i = 0; i < room.players.length; i++) {
+      if (room.players[i].hand.length <= 9) {
+        $("#playersDisplay").append(
+          "<ul class='side'>  <li class='playerList'><p id='player" +
+            (i + 1) +
+            "Count'class='text text-cardCountSingle'>" +
+            room.players[i].hand.length +
+            "</p></li><li class='text text-playerName' >" +
+            room.players[i].userName +
+            "</li>"
+        );
+      } else if (room.players[i].hand.length > 9) {
+        $("#playersDisplay").append(
+          "<ul class='side'>  <li class='playerList'><p id='player" +
+            (i + 1) +
+            "Count'class='text text-cardCountDouble'>" +
+            room.players[i].hand.length +
+            "</p></li><li class='text text-playerName' >" +
+            room.players[i].userName +
+            "</li>"
+        );
+      }
+    }
   });
 
   socket.on("availableRooms", function(joinableRooms) {
@@ -131,20 +155,94 @@ $(function() {
   });
 
   socket.on("gameStart", function(room) {
-    console.log("game starting", room);
     $("#lobby").hide();
     $("main").show();
+    $("#wildSelect").hide();
+
     for (var i = 0; i < room.players.length; i++) {
       $("#playersDisplay").append(
-        "<ul class='side'><li><img src='./cards/back.svg' id='player" +
+        "<ul class='side'>  <li class='playerList'><p id='player" +
           (i + 1) +
-          "Count' alt='card back' class='card' /></li><li>" +
+          "Count'class='text text-cardCountSingle'>7</p></li><li class='text text-playerName' >" +
           room.players[i].userName +
           "</li>"
       );
     }
 
+    var card = "./cards/" + room.currentCard + ".svg";
+
+    $("#currentCard").attr("src", card);
+
     socket.emit("deal");
+  });
+
+  socket.on("currentCard", function(room) {
+    var card = "./cards/" + room.currentCard + ".svg";
+
+    $("#currentCard").attr("src", card);
+  });
+
+  socket.on("hand", function(hand) {
+    $("#playerHand").html("");
+    for (var i = 0; i < hand.length; i++) {
+      $("#playerHand").append(
+        "<img src=./cards/" +
+          hand[i] +
+          ".svg alt=" +
+          hand[i] +
+          " class=card></img>"
+      );
+    }
+  });
+
+  socket.on("draw", function(hand) {
+    $("#playerHand").append(
+      "<img src=./cards/" +
+        hand[hand.length - 1] +
+        ".svg alt=" +
+        hand[hand.length - 1] +
+        " class=card></img>"
+    );
+  });
+
+  socket.on("updateDeck", function(room) {
+    $("#deckCount").text(room.deck.length);
+  });
+
+  socket.on("newTurn", function(player) {
+    $("#currentPlayer").text(player.userName + "'s turn");
+  });
+
+  socket.on("yourTurn", function(room) {
+    $("#currentPlayer").text("Your turn");
+    var playedCard;
+
+    $("#deck").on("click", function() {
+      socket.emit("draw");
+    });
+
+    $("#playerHand").on("click", "img", function() {
+      playedCard = $(this).attr("alt");
+
+      if (
+        playedCard === "ww" ||
+        playedCard === "wd" ||
+        playedCard.substring(0, 1) === room.currentCard.substring(0, 1) ||
+        playedCard.substring(1, 2) === room.currentCard.substring(1, 2)
+      ) {
+        socket.emit("handleTurn", playedCard);
+      }
+    });
+  });
+
+  socket.on("wildChoose", function() {
+    $("#wildSelect").show();
+
+    $("#wildSelect").on("click", "img", function() {
+      var color = $(this).attr("alt");
+      socket.emit("color", color);
+      $("#wildSelect").hide();
+    });
   });
 
   socket.on("invalidRoom", function() {

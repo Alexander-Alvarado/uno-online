@@ -208,7 +208,10 @@ io.on("connection", function(socket) {
           wild: [{ ww: 4 }, { wd: 4 }]
         } */
       ],
+      currentCard: "",
       discarded: [],
+      playerTurn: 0,
+      firstTurn: true,
       gameStarted: false
     });
 
@@ -217,8 +220,7 @@ io.on("connection", function(socket) {
 
     socket.join(players[player].roomKey);
     io.in(players[player].roomKey).emit("roomInfo", room);
-    console.log("joinable rooms:", joinableRooms);
-    console.log("active rooms:", activeRooms);
+    log();
   });
 
   socket.on("searching", function() {
@@ -242,8 +244,7 @@ io.on("connection", function(socket) {
 
         socket.broadcast.emit("availableRooms", joinableRooms);
         io.in(players[player].roomKey).emit("roomInfo", joinableRooms[room]);
-        console.log("joinable rooms:", joinableRooms);
-        console.log("active rooms:", activeRooms);
+        log();
       } else if (joinableRooms[room].status === "closed") {
         socket.emit("roomFull");
       }
@@ -254,10 +255,7 @@ io.on("connection", function(socket) {
 
   function newPlayer(data, roomKey) {
     players.push({ id: socket.id, userName: data, roomKey: roomKey, hand: [] });
-    console.log(
-      "-----------------------------------------------------------------------------------------"
-    );
-    console.log("active players:", players);
+    log();
   }
 
   function findGlobalPlayerIndex() {
@@ -290,41 +288,65 @@ io.on("connection", function(socket) {
 
     room = findActiveRoomIndex(roomKey);
 
-    io.in(roomKey).emit("gameStart", activeRooms[room]);
+    var card;
 
-    socket.broadcast.emit("availableRooms", joinableRooms);
+    do {
+      card = Math.floor(Math.random() * activeRooms[room].deck.length);
+    } while (activeRooms[room].deck[card] === "ww" || activeRooms[room].deck[card].substr(1, 2) === "d" || activeRooms[room].deck[card].substr(1, 2) === "r" || activeRooms[room].deck[card].substr(1, 2) === "s");
 
-    console.log(
-      "-----------------------------------------------------------------------------------------"
-    );
-    console.log("active players:", players);
-    console.log("joinable rooms:", joinableRooms);
-    console.log("active rooms:", activeRooms);
-  });
-
-  socket.on("draw", function() {
-    var player = findGlobalPlayerIndex();
-    var roomKey = players[player].roomKey;
-    var room = findActiveRoomIndex(roomKey);
-    player = findRoomPlayerIndex(room);
-
-    var card = Math.floor(Math.random() * activeRooms[room].deck.length);
-
-    activeRooms[room].players[player].hand.push(activeRooms[room].deck[card]);
+    activeRooms[room].currentCard = activeRooms[room].deck[card];
 
     activeRooms[room].deck.splice(
       activeRooms[room].deck.findIndex(i => i === activeRooms[room].deck[card]),
       1
     );
 
-    console.log(
-      activeRooms[room].players[player].userName +
-        "'s hand:" +
-        activeRooms[room].players[player].hand,
-      "cards in deck:" + activeRooms[room].deck.length
-    );
+    io.in(roomKey).emit("gameStart", activeRooms[room]);
 
-    io.in(players[player].roomKey).emit("updateInfo", activeRooms[room]);
+    socket.broadcast.emit("availableRooms", joinableRooms);
+
+    log();
+    nextTurn();
+  });
+
+  function log() {
+    console.log(
+      "-----------------------------------------------------------------------------------------"
+    );
+    console.log("active players:", players);
+    console.log("joinable rooms:", joinableRooms);
+    console.log("active rooms:", activeRooms);
+  }
+
+  socket.on("draw", function() {
+    var player = findGlobalPlayerIndex();
+    var roomKey = players[player].roomKey;
+    var room = findActiveRoomIndex(roomKey);
+    player = findRoomPlayerIndex(room);
+    if (player === activeRooms[room].playerTurn) {
+      var card = Math.floor(Math.random() * activeRooms[room].deck.length);
+
+      activeRooms[room].players[player].hand.push(activeRooms[room].deck[card]);
+
+      activeRooms[room].deck.splice(
+        activeRooms[room].deck.findIndex(
+          i => i === activeRooms[room].deck[card]
+        ),
+        1
+      );
+
+      io.in(activeRooms[room].players[player].roomKey).emit(
+        "updatePlayers",
+        activeRooms[room]
+      );
+      io.in(activeRooms[room].players[player].roomKey).emit(
+        "updateDeck",
+        activeRooms[room]
+      );
+
+      socket.emit("draw", activeRooms[room].players[player].hand);
+      log();
+    }
   });
 
   socket.on("deal", function() {
@@ -346,14 +368,120 @@ io.on("connection", function(socket) {
       );
     }
 
-    console.log(
-      activeRooms[room].players[player].userName +
-        "'s hand:" +
-        activeRooms[room].players[player].hand,
-      "cards in deck:" + activeRooms[room].deck.length
+    io.in(activeRooms[room].players[player].roomKey).emit(
+      "updatePlayers",
+      activeRooms[room]
+    );
+    io.in(activeRooms[room].players[player].roomKey).emit(
+      "updateDeck",
+      activeRooms[room]
     );
 
-    io.in(players[player].roomKey).emit("updateInfo", activeRooms[room]);
+    socket.emit("hand", activeRooms[room].players[player].hand);
+    log();
+  });
+
+  function nextTurn() {
+    var player = findGlobalPlayerIndex();
+    var roomKey = players[player].roomKey;
+    var room = findActiveRoomIndex(roomKey);
+    player = findRoomPlayerIndex(room);
+
+    if (activeRooms[room].firstTurn === true) {
+      activeRooms[room].playerTurn = Math.floor(
+        Math.random() * activeRooms[room].players.length
+      );
+      activeRooms[room].firstTurn = false;
+
+      console.log(
+        "randomly choose " +
+          activeRooms[room].players[activeRooms[room].playerTurn].userName +
+          " to start game"
+      );
+    } else if (activeRooms[room].firstTurn === false) {
+      activeRooms[room].playerTurn++;
+      if (activeRooms[room].playerTurn > activeRooms[room].players.length - 1) {
+        activeRooms[room].playerTurn = 0;
+      }
+      console.log(
+        "next turn, " +
+          activeRooms[room].players[activeRooms[room].playerTurn].userName +
+          "'s turn"
+      );
+    }
+
+    var playerTurn = activeRooms[room].playerTurn;
+
+    var currentPlayerId = ("${%s}", activeRooms[room].players[playerTurn].id);
+
+    socket
+      .to(activeRooms[room].players[player].roomKey)
+      .emit("newTurn", activeRooms[room].players[playerTurn]);
+
+    io.to(currentPlayerId).emit("yourTurn", activeRooms[room]);
+  }
+
+  socket.on("handleTurn", function(playedCard) {
+    var player = findGlobalPlayerIndex();
+    var roomKey = players[player].roomKey;
+    var room = findActiveRoomIndex(roomKey);
+    player = findRoomPlayerIndex(room);
+
+    if (player === activeRooms[room].playerTurn) {
+      console.log(
+        activeRooms[room].players[player].userName +
+          " played card: " +
+          playedCard
+      );
+
+      activeRooms[room].discarded.push(activeRooms[room].currentCard);
+
+      activeRooms[room].players[player].hand.splice(
+        activeRooms[room].players[player].hand.findIndex(i => i === playedCard),
+        1
+      );
+
+      activeRooms[room].currentCard = playedCard;
+
+      if (
+        activeRooms[room].currentCard === "ww" ||
+        activeRooms[room].currentCard === "wd"
+      ) {
+        var hostId = ("${%s}", activeRooms[room].players[player].id);
+        io.to(hostId).emit("wildChoose");
+
+        socket.on("color", function(color) {
+          console.log("wild color chosen:", color);
+          activeRooms[room].currentCard = color;
+
+          io.in(activeRooms[room].players[player].roomKey).emit(
+            "updatePlayers",
+            activeRooms[room]
+          );
+          io.in(activeRooms[room].players[player].roomKey).emit(
+            "currentCard",
+            activeRooms[room]
+          );
+          socket.emit("hand", activeRooms[room].players[player].hand);
+
+          nextTurn();
+          log();
+        });
+      } else {
+        io.in(activeRooms[room].players[player].roomKey).emit(
+          "updatePlayers",
+          activeRooms[room]
+        );
+        io.in(activeRooms[room].players[player].roomKey).emit(
+          "currentCard",
+          activeRooms[room]
+        );
+        socket.emit("hand", activeRooms[room].players[player].hand);
+
+        nextTurn();
+        log();
+      }
+    }
   });
 
   socket.on("disconnect", function() {
@@ -420,13 +548,8 @@ io.on("connection", function(socket) {
       }
     }
 
-    console.log(
-      "-----------------------------------------------------------------------------------------"
-    );
-
     socket.broadcast.emit("availableRooms", joinableRooms);
-    console.log("active players:", players);
-    console.log("joinable rooms:", joinableRooms);
-    console.log("active rooms:", activeRooms);
+
+    log();
   });
 });
