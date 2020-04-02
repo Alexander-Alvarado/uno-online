@@ -94,8 +94,6 @@ $(function() {
   });
 
   socket.on("roomInfo", function(room) {
-    //console.clear();
-    //console.log("room info:", room);
     $("#roomKeyDisplayValue").html("<h2> " + room.room + " </h2>");
     $("#count").html("<h2> " + room.players.length + " </h2>");
     $("#players").text("");
@@ -105,8 +103,6 @@ $(function() {
   });
 
   socket.on("updatePlayers", function(room) {
-    //console.clear();
-    //console.log(room);
     $("#playersDisplay").html("");
     for (var i = 0; i < room.players.length; i++) {
       if (room.players[i].hand.length <= 9) {
@@ -206,16 +202,6 @@ $(function() {
     }
   });
 
-  /* socket.on("draw", function(hand) {
-    $("#playerHand").append(
-      "<img src=./cards/" +
-        hand[hand.length - 1] +
-        ".svg alt=" +
-        hand[hand.length - 1] +
-        " class=card></img>"
-    );
-  }); */
-
   socket.on("updateDeck", function(room) {
     $("#deckCount").text(room.deck.length);
   });
@@ -282,9 +268,7 @@ $(function() {
           if (playedCard.substring(1, 2) === "s") {
             console.log("skip");
             socket.emit("skip", playedCard);
-          } /* else if (playedCard.substring(1, 2) === "r") {
-            socket.emit("")
-          } */ else {
+          } else {
             console.log("normal card");
             socket.emit("handleTurn", playedCard);
           }
@@ -293,7 +277,6 @@ $(function() {
     }
   });
 
-  //socket.on("wildChoose",
   function wild(playedCard) {
     if (ID === gameRoom.players[gameRoom.playerTurn].id) {
       $("#wildSelect").show();

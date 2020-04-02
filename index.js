@@ -143,70 +143,6 @@ io.on("connection", function(socket) {
         "wd",
         "wd",
         "wd"
-        /*  { cards: 108 },
-        {
-          red: [
-            { 0: 1 },
-            { 1: 2 },
-            { 2: 2 },
-            { 3: 2 },
-            { 4: 2 },
-            { 5: 2 },
-            { 6: 2 },
-            { 7: 2 },
-            { 8: 2 },
-            { 9: 2 },
-            { r: 2 },
-            { d: 2 },
-            { s: 2 }
-          ],
-          blue: [
-            { 0: 1 },
-            { 1: 2 },
-            { 2: 2 },
-            { 3: 2 },
-            { 4: 2 },
-            { 5: 2 },
-            { 6: 2 },
-            { 7: 2 },
-            { 8: 2 },
-            { 9: 2 },
-            { r: 2 },
-            { d: 2 },
-            { s: 2 }
-          ],
-          yellow: [
-            { 0: 1 },
-            { 1: 2 },
-            { 2: 2 },
-            { 3: 2 },
-            { 4: 2 },
-            { 5: 2 },
-            { 6: 2 },
-            { 7: 2 },
-            { 8: 2 },
-            { 9: 2 },
-            { r: 2 },
-            { d: 2 },
-            { s: 2 }
-          ],
-          green: [
-            { 0: 1 },
-            { 1: 2 },
-            { 2: 2 },
-            { 3: 2 },
-            { 4: 2 },
-            { 5: 2 },
-            { 6: 2 },
-            { 7: 2 },
-            { 8: 2 },
-            { 9: 2 },
-            { r: 2 },
-            { d: 2 },
-            { s: 2 }
-          ],
-          wild: [{ ww: 4 }, { wd: 4 }]
-        } */
       ],
       currentCard: "",
       discarded: [],
@@ -516,7 +452,6 @@ io.on("connection", function(socket) {
     var room = findActiveRoomIndex(roomKey);
     player = findRoomPlayerIndex(room);
 
-    //if (player === activeRooms[room].playerTurn) {
     console.log(activeRooms[room].players[player].userName, "is skipping");
 
     console.log(
@@ -549,12 +484,7 @@ io.on("connection", function(socket) {
     nextTurn();
 
     log();
-    //}
   });
-
-  /* socket.on("wild", function(playedCard) {
-    socket.emit("wildChoose", playedCard);
-  }); */
 
   socket.on("wild", function(wildInfo) {
     var player = findGlobalPlayerIndex();

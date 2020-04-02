@@ -1,13 +1,11 @@
 {
-  "name": "chat-app",
+  "name": "uno-online",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "homepage": "http://alexander-alvarado.github.io/websocket-chat-app",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d",
     "watch": "nodemon --watch"
   },
   "author": "Alex Alvarado",
