@@ -368,7 +368,7 @@ io.on("connection", function(socket) {
     var room = findActiveRoomIndex(roomKey);
     player = findRoomPlayerIndex(room);
 
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < 7; i++) {
       var card = Math.floor(Math.random() * activeRooms[room].deck.length);
 
       activeRooms[room].players[player].hand.push(activeRooms[room].deck[card]);
