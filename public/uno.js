@@ -8,6 +8,8 @@ $(function() {
   $("#roomSelect").hide();
 
   var userName;
+  var ID;
+  var gameRoom;
 
   $("#nameSubmit").click(function() {
     if ($("#name").val() != "") {
@@ -78,6 +80,11 @@ $(function() {
     $("#lobby").show();
     $("#startGame").hide();
   }
+
+  socket.on("userID", function(socketID) {
+    ID = socketID;
+    console.log("your socket ID:", ID);
+  });
 
   socket.on("roomFull", function() {
     console.log("Room Closed");
@@ -199,7 +206,7 @@ $(function() {
     }
   });
 
-  socket.on("draw", function(hand) {
+  /* socket.on("draw", function(hand) {
     $("#playerHand").append(
       "<img src=./cards/" +
         hand[hand.length - 1] +
@@ -207,7 +214,7 @@ $(function() {
         hand[hand.length - 1] +
         " class=card></img>"
     );
-  });
+  }); */
 
   socket.on("updateDeck", function(room) {
     $("#deckCount").text(room.deck.length);
@@ -217,48 +224,97 @@ $(function() {
     $("#currentPlayer").text(player.userName + "'s turn");
   });
 
-  socket.on("yourTurn", function(room) {
-    if (userName === room.players[room.playerTurn].userName) {
-      $("#currentPlayer").text("Your turn");
-      var playedCard;
+  socket.on("updateRoom", function(room) {
+    gameRoom = room;
+  });
 
-      $("#deck").on("click", function() {
-        socket.emit("draw");
-      });
+  $("#deck").on("click", function() {
+    if (ID === gameRoom.players[gameRoom.playerTurn].id) {
+      console.log("clicked draw");
+      socket.emit("draw");
+    }
+  });
+
+  socket.on("yourTurn", function(gameRoom) {
+    console.log(gameRoom.players[gameRoom.playerTurn].id, "'s turn");
+
+    if (ID === gameRoom.players[gameRoom.playerTurn].id) {
+      $("#currentPlayer").text("Your turn");
+
+      if (gameRoom.currentCard.substring(1, 2) === "d") {
+        for (var i = 0; i < 2; i++) {
+          socket.emit("draw");
+        }
+      }
+
+      if (
+        gameRoom.currentCard.length === 1 &&
+        gameRoom.discarded[gameRoom.discarded.length - 1] === "wd"
+      ) {
+        for (var i = 0; i < 4; i++) {
+          socket.emit("draw");
+        }
+      }
 
       $("#playerHand").on("click", "img", function() {
-        playedCard = $(this).attr("alt");
-        console.clear();
+        var playedCard = $(this).attr("alt");
+
         if (
-          playedCard.substring(0, 1) ===
+          (playedCard === "ww" || playedCard === "wd") &&
+          ID === gameRoom.players[gameRoom.playerTurn].id
+        ) {
+          console.log("wild");
+          wild(playedCard);
+        }
+
+        if (
+          playedCard.substring(0, 1) != "w" &&
+          (playedCard.substring(0, 1) ===
             $("#currentCard")
               .attr("alt")
               .substring(0, 1) ||
-          playedCard.substring(1, 2) ===
-            $("#currentCard")
-              .attr("alt")
-              .substring(1, 2)
+            playedCard.substring(1, 2) ===
+              $("#currentCard")
+                .attr("alt")
+                .substring(1, 2)) &&
+          ID === gameRoom.players[gameRoom.playerTurn].id
         ) {
-          console.log("match");
-          socket.emit("handleTurn", playedCard);
-        }
-
-        if (playedCard === "ww" || playedCard === "wd") {
-          console.log("wild");
-          socket.emit("handleTurn", playedCard);
+          if (playedCard.substring(1, 2) === "s") {
+            console.log("skip");
+            socket.emit("skip", playedCard);
+          } /* else if (playedCard.substring(1, 2) === "r") {
+            socket.emit("")
+          } */ else {
+            console.log("normal card");
+            socket.emit("handleTurn", playedCard);
+          }
         }
       });
     }
   });
 
-  socket.on("wildChoose", function() {
-    $("#wildSelect").show();
+  //socket.on("wildChoose",
+  function wild(playedCard) {
+    if (ID === gameRoom.players[gameRoom.playerTurn].id) {
+      $("#wildSelect").show();
+      console.log("wild type:", playedCard);
 
-    $("#wildSelect").on("click", "img", function() {
-      var color = $(this).attr("alt");
-      socket.emit("color", color);
-      $("#wildSelect").hide();
-    });
+      $("#wildSelect").on("click", "img", function() {
+        var color = $(this).attr("alt");
+
+        var wildInfo = { playedCard: playedCard, color: color };
+        socket.emit("wild", wildInfo);
+        $("#wildSelect").hide();
+      });
+    }
+  }
+
+  socket.on("win", function(player) {
+    if (userName != player.userName) {
+      $("#currentPlayer").text(player.userName + " Wins!");
+    } else if (userName === player.userName) {
+      $("#currentPlayer").text("You Win!");
+    }
   });
 
   socket.on("invalidRoom", function() {

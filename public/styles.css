@@ -105,11 +105,6 @@ ul {
   text-align: center;
 }
 
-/* .playerTurn {
-  text-align: center;
-  grid-area: turn;
-} */
-
 .container {
   display: grid;
   grid-template-areas:
