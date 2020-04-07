@@ -83,7 +83,6 @@ $(function() {
 
   socket.on("userID", function(socketID) {
     ID = socketID;
-    console.log("your socket ID:", ID);
   });
 
   socket.on("roomFull", function() {
@@ -222,8 +221,6 @@ $(function() {
   });
 
   socket.on("yourTurn", function(gameRoom) {
-    console.log(gameRoom.players[gameRoom.playerTurn].id, "'s turn");
-
     if (ID === gameRoom.players[gameRoom.playerTurn].id) {
       $("#currentPlayer").text("Your turn");
 
