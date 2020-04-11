@@ -291,6 +291,11 @@ io.on("connection", function (socket) {
 
       activeRooms[room].deck.splice(card, 1);
 
+      if (activeRooms[room].deck.length === 0) {
+        activeRooms[room].deck = activeRooms[room].discarded;
+        activeRooms[room].discarded = [];
+      }
+
       io.in(activeRooms[room].players[player].roomKey).emit(
         "updatePlayers",
         activeRooms[room]
@@ -607,6 +612,7 @@ io.on("connection", function (socket) {
 
   socket.on("disconnect", function () {
     var player = findGlobalPlayerIndex();
+
     var roomKey;
     var room;
 
@@ -646,6 +652,15 @@ io.on("connection", function (socket) {
       room = findActiveRoomIndex(roomKey);
 
       if (room != -1) {
+        for (
+          var i = 0;
+          i < activeRooms[room].players[player].hand.length;
+          i++
+        ) {
+          activeRooms[room].discarded.push(
+            activeRooms[room].players[player].hand[i]
+          );
+        }
         activeRooms[room].players.splice(
           activeRooms[room].players.findIndex(
             (i) => i.id === removedPlayer[0].id
@@ -665,7 +680,7 @@ io.on("connection", function (socket) {
         if (activeRooms[room].players.length === 0) {
           activeRooms.splice(room, 1);
         }
-        io.in(roomKey).emit("roomInfo", activeRooms[room]);
+        io.in(roomKey).emit("updateRoom", activeRooms[room]);
       }
     }
 
