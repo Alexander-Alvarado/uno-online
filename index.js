@@ -651,6 +651,8 @@ io.on("connection", function (socket) {
 
     activeRooms[room].currentCard = "";
     activeRooms[room].wildType = "";
+    activeRooms[room].reverseOrder = false;
+    activeRooms[room].skipPlayed = false;
 
     for (var i = 0; i < activeRooms[room].players.length; i++) {
       activeRooms[room].players[i].hand = [];
