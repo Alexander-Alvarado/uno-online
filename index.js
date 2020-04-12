@@ -229,6 +229,7 @@ io.on("connection", function (socket) {
     var roomKey = players[player].roomKey;
     var room = findJoinableRoomIndex(roomKey);
 
+    //console.clear();
     if (restart != true) {
       joinableRooms[room].status = "closed";
       joinableRooms[room].gameStarted = true;
@@ -299,6 +300,20 @@ io.on("connection", function (socket) {
         activeRooms[room].discarded = [];
       }
 
+      var hasUno = [];
+
+      for (var i = 0; i < activeRooms[room].players.length; i++) {
+        if (activeRooms[room].players[i].hand.length === 1) {
+          //console.log(activeRooms[room].players[i].userName, "has uno");
+
+          hasUno.push(activeRooms[room].players[i]);
+        }
+      }
+
+      io.in(roomKey).emit("uno", hasUno);
+
+      hasUno = [];
+
       io.in(roomKey).emit("updatePlayers", activeRooms[room]);
       io.in(roomKey).emit("updateDeck", activeRooms[room]);
       io.in(roomKey).emit("updateRoom", activeRooms[room]);
@@ -327,15 +342,22 @@ io.on("connection", function (socket) {
       );
     }
 
-    io.in(activeRooms[room].players[player].roomKey).emit(
-      "updatePlayers",
-      activeRooms[room]
-    );
-    io.in(activeRooms[room].players[player].roomKey).emit(
-      "updateDeck",
-      activeRooms[room]
-    );
+    var hasUno = [];
 
+    for (var i = 0; i < activeRooms[room].players.length; i++) {
+      if (activeRooms[room].players[i].hand.length === 1) {
+        //console.log(activeRooms[room].players[i].userName, "has uno");
+
+        hasUno.push(activeRooms[room].players[i]);
+      }
+    }
+
+    io.in(roomKey).emit("uno", hasUno);
+
+    hasUno = [];
+
+    io.in(roomKey).emit("updatePlayers", activeRooms[room]);
+    io.in(roomKey).emit("updateDeck", activeRooms[room]);
     io.in(roomKey).emit("updateRoom", activeRooms[room]);
 
     socket.emit("hand", activeRooms[room].players[player].hand);
@@ -413,6 +435,7 @@ io.on("connection", function (socket) {
     }
 
     var playerTurn = activeRooms[room].playerTurn;
+
     activeRooms[room].skipPlayed = false;
 
     io.in(roomKey).emit("updateRoom", activeRooms[room]);
@@ -431,28 +454,36 @@ io.on("connection", function (socket) {
 
     activeRooms[room].skipPlayed = false;
 
+    var foundCard = activeRooms[room].players[player].hand.findIndex(
+      (i) => i === playedCard
+    );
+
     if (playedCard.substr(0, 1) === "w") {
       activeRooms[room].wildType = playedCard;
     }
 
-    if (playedCard.substr(1, 2) === "s") {
+    if (playedCard.substr(1, 2) === "s" && foundCard != -1) {
       activeRooms[room].skipPlayed = true;
     }
 
     if (
       player === activeRooms[room].playerTurn &&
-      playedCard.substr(0, 1) != "w"
+      playedCard.substr(0, 1) != "w" &&
+      foundCard != -1
     ) {
       if (activeRooms[room].currentCard.length === 2) {
         activeRooms[room].discarded.push(activeRooms[room].currentCard);
       }
 
-      var foundCard = activeRooms[room].players[player].hand.findIndex(
-        (i) => i === playedCard
-      );
+      /*  console.log(
+        activeRooms[room].players[player].userName,
+        "played",
+        playedCard,
+        "found in hand at",
+        foundCard,
+        "\n"
+      ); */
 
-      /*       console.log(playedCard, "found in hand at", foundCard);
-       */
       activeRooms[room].players[player].hand.splice(
         activeRooms[room].players[player].hand.findIndex(
           (i) => i === playedCard
@@ -484,6 +515,19 @@ io.on("connection", function (socket) {
         io.in(roomKey).emit("updateRoom", activeRooms[room]);
         io.in(roomKey).emit("win", activeRooms[room].players[player]);
       } else {
+        var hasUno = [];
+
+        for (var i = 0; i < activeRooms[room].players.length; i++) {
+          if (activeRooms[room].players[i].hand.length === 1) {
+            //console.log(activeRooms[room].players[i].userName, "has uno");
+
+            hasUno.push(activeRooms[room].players[i]);
+          }
+        }
+
+        io.in(roomKey).emit("uno", hasUno);
+
+        hasUno = [];
         nextTurn(roomKey);
         handCipher = encrypt(activeRooms[room].players[player]);
       }
@@ -521,6 +565,19 @@ io.on("connection", function (socket) {
         io.in(roomKey).emit("updateRoom", activeRooms[room]);
         io.in(roomKey).emit("win", activeRooms[room].players[player]);
       } else {
+        var hasUno = [];
+
+        for (var i = 0; i < activeRooms[room].players.length; i++) {
+          if (activeRooms[room].players[i].hand.length === 1) {
+            //console.log(activeRooms[room].players[i].userName, "has uno");
+
+            hasUno.push(activeRooms[room].players[i]);
+          }
+        }
+
+        io.in(roomKey).emit("uno", hasUno);
+
+        hasUno = [];
         activeRooms[room].wildType = "";
 
         nextTurn(roomKey);
@@ -704,12 +761,14 @@ io.on("connection", function (socket) {
 
       if (room != -1) {
         if (activeRooms[room].players.length > 1) {
-          if (
-            activeRooms[room].players[activeRooms[room].playerTurn].id ===
-            removedPlayer.id
-          ) {
-            nextTurn(roomKey);
-          }
+          try {
+            if (
+              activeRooms[room].players[activeRooms[room].playerTurn].id ===
+              removedPlayer.id
+            ) {
+              nextTurn(roomKey);
+            }
+          } catch (TypeError) {}
 
           for (
             var i = 0;

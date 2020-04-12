@@ -108,7 +108,8 @@ ul {
 .arrows {
   position: relative;
   width: 150px;
-  left: 2%;
+  top: 5%;
+  left: 2.5%;
 }
 
 .current {

@@ -1,5 +1,5 @@
-//var socket = io.connect("http://localhost:5000/");
-var socket = io.connect("https://online-uno.herokuapp.com/");
+var socket = io.connect("http://localhost:5000/");
+//var socket = io.connect("https://online-uno.herokuapp.com/");
 
 $(function () {
   $("main").hide();
@@ -7,6 +7,7 @@ $(function () {
   $("#lobby").hide();
   $("#roomSelect").hide();
   $(".gameOver").hide();
+  $("#uno").hide();
 
   var userName;
   var ID;
@@ -25,8 +26,10 @@ $(function () {
       }
       if (userName.length > 12) {
         alert("User name is greater than 12 characters");
+        $("#name").val("");
       } else if (containsBanned === true) {
         alert("User name contains banned characters");
+        $("#name").val("");
       } else {
         newPlayer(userName);
       }
@@ -46,8 +49,10 @@ $(function () {
         }
         if (userName.length > 12) {
           alert("User name is greater than 12 characters");
+          $("#name").val("");
         } else if (containsBanned === true) {
           alert("User name contains banned characters");
+          $("#name").val("");
         } else {
           newPlayer(userName);
         }
@@ -312,6 +317,43 @@ $(function () {
       });
     }
   }
+
+  socket.on("uno", function (players) {
+    if (players.length === 0) {
+      $("#uno").hide();
+    } else if (players.length > 0) {
+      $("#uno").text("");
+      $("#uno").show();
+      if (players.length === 1) {
+        if (ID != players[0].id) {
+          $("#uno").text(players[0].userName + " has UNO!");
+        }
+      } else if (players.length > 1) {
+        var nameCount = 0;
+
+        var foundSelf = players.findIndex((i) => i.id === ID);
+
+        if (foundSelf != -1) {
+          players.splice(foundSelf, 1);
+        }
+
+        for (var i = 0; i < players.length; i++) {
+          nameCount++;
+          if ($("#uno").text() === "") {
+            $("#uno").append(players[i].userName);
+          } else {
+            $("#uno").append(", " + players[i].userName);
+          }
+        }
+        if (nameCount === 1) {
+          $("#uno").append(" has UNO!");
+        } else if (nameCount > 1) {
+          $("#uno").append(" have UNO!");
+        }
+        nameCount = 0;
+      }
+    }
+  });
 
   socket.on("win", function (player) {
     $("main").hide();
