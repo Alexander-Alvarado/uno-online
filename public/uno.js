@@ -242,10 +242,11 @@ $(function () {
         var playedCard = $(this).attr("alt");
 
         if (
-          (playedCard === "ww" || playedCard === "wd") &&
+          playedCard.substring(0, 1) === "w" &&
           ID === gameRoom.players[gameRoom.playerTurn].id
         ) {
           console.log("wild");
+          socket.emit("handleTurn", playedCard);
           wild(playedCard);
         }
 
@@ -269,16 +270,14 @@ $(function () {
     }
   });
 
-  function wild(playedCard) {
+  function wild() {
     if (ID === gameRoom.players[gameRoom.playerTurn].id) {
       $("#wildSelect").show();
-      console.log("wild type:", playedCard);
 
       $("#wildSelect").on("click", "img", function () {
         var color = $(this).attr("alt");
 
-        var wildInfo = { playedCard: playedCard, color: color };
-        socket.emit("wild", wildInfo);
+        socket.emit("wild", color);
         $("#wildSelect").hide();
       });
     }
@@ -288,21 +287,29 @@ $(function () {
     $("main").hide();
     $(".gameOver").show();
     $("#playAgain").hide();
+    $(".emoji").show();
     if (userName != player.userName) {
       $("#winner").text(player.userName + " Wins!");
       $("#confetti").hide();
     } else if (userName === player.userName) {
       $("#winner").text("You Win!");
       $("#loser").hide();
-    }
-
-    if (ID === gameRoom.host.id) {
       $("#playAgain").show();
     }
+
+    /* if (ID === gameRoom.host.id) {
+      $("#playAgain").show();
+    } */
   });
 
   $("#playAgain").on("click", function () {
     socket.emit("restart");
+  });
+
+  socket.on("restart", function () {
+    var restart = true;
+
+    socket.emit("gameStart", restart);
   });
 
   socket.on("invalidRoom", function () {
