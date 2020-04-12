@@ -362,7 +362,7 @@ $(function () {
     $(".gameOver").show();
     $("#playAgain").hide();
     $(".emoji").show();
-    if (ID != player.if) {
+    if (ID != player.id) {
       $("#winner").text(player.userName + " Wins!");
       $("#confetti").hide();
     } else if (ID === player.id) {
