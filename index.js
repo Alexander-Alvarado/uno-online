@@ -183,7 +183,7 @@ io.on("connection", function (socket) {
         player = findGlobalPlayerIndex();
         joinableRooms[room].players.push(players[player]);
         socket.join(players[player].roomKey);
-        if (joinableRooms[room].players.length === 4) {
+        if (joinableRooms[room].players.length === 5) {
           joinableRooms[room].status = "closed";
         }
 
