@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "predeploy": "npm run build",
-    "watch": "nodemon --watch"
+    "watch": "nodemon -e *"
   },
   "author": "Alex Alvarado",
   "license": "ISC",
