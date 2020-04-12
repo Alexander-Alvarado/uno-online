@@ -164,7 +164,7 @@ io.on("connection", function (socket) {
 
     socket.join(players[player].roomKey);
     io.in(players[player].roomKey).emit("roomInfo", room);
-    //log();
+    log();
     console.clear();
   });
 
@@ -176,7 +176,7 @@ io.on("connection", function (socket) {
     var room = findJoinableRoomIndex(data.roomKey);
     try {
       if (
-        joinableRooms[room].players.length < 4 &&
+        joinableRooms[room].players.length < 5 &&
         joinableRooms[room].status === "open"
       ) {
         newPlayer(data.userName, data.roomKey);
@@ -189,7 +189,7 @@ io.on("connection", function (socket) {
 
         socket.broadcast.emit("availableRooms", joinableRooms);
         io.in(players[player].roomKey).emit("roomInfo", joinableRooms[room]);
-        //log();
+        log();
       } else if (joinableRooms[room].status === "closed") {
         socket.emit("roomFull");
       }
@@ -206,7 +206,7 @@ io.on("connection", function (socket) {
       hand: [],
     });
     socket.emit("userID", socket.id);
-    //log();
+    log();
   }
 
   function findGlobalPlayerIndex() {
@@ -340,7 +340,7 @@ io.on("connection", function (socket) {
     io.in(roomKey).emit("updateRoom", activeRooms[room]);
 
     socket.emit("hand", activeRooms[room].players[player].hand);
-    //log();
+    log();
     handCipher = encrypt(activeRooms[room].players[player]);
   });
 
@@ -394,7 +394,7 @@ io.on("connection", function (socket) {
       var turnMove = 1;
 
       if (activeRooms[room].skipPlayed === true) {
-        //log();
+        log();
         turnMove = 2;
         activeRooms[room].skipPlayed = false;
         /*   console.log(
@@ -448,7 +448,7 @@ io.on("connection", function (socket) {
 
     io.in(roomKey).emit("yourTurn", activeRooms[room]);
 
-    //log();
+    log();
   }
 
   socket.on("handleTurn", function (playedCard) {
@@ -709,6 +709,7 @@ io.on("connection", function (socket) {
     activeRooms[room].discarded = [];
 
     activeRooms[room].currentCard = "";
+    activeRooms[room].wildType = "";
 
     for (var i = 0; i < activeRooms[room].players.length; i++) {
       activeRooms[room].players[i].hand = [];
@@ -802,6 +803,6 @@ io.on("connection", function (socket) {
 
     socket.broadcast.emit("availableRooms", joinableRooms);
 
-    //log();
+    log();
   });
 });
