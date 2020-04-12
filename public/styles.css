@@ -105,6 +105,15 @@ ul {
   text-align: center;
 }
 
+.emoji {
+  font-size: 225px;
+}
+
+.gameOver {
+  grid-area: current;
+  text-align: center;
+}
+
 .container {
   display: grid;
   grid-template-areas:

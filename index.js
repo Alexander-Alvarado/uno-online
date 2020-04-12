@@ -259,7 +259,7 @@ io.on("connection", function (socket) {
 
     io.in(roomKey).emit("updateRoom", activeRooms[room]);
 
-    nextTurn();
+    nextTurn(roomKey);
   });
 
   function log() {
@@ -376,9 +376,9 @@ io.on("connection", function (socket) {
     return decrypted;
   }
 
-  function nextTurn() {
+  function nextTurn(roomKey) {
     var player = findGlobalPlayerIndex();
-    var roomKey = players[player].roomKey;
+    //var roomKey = players[player].roomKey;
     var room = findActiveRoomIndex(roomKey);
     player = findRoomPlayerIndex(room);
 
@@ -516,9 +516,10 @@ io.on("connection", function (socket) {
       socket.emit("hand", activeRooms[room].players[player].hand);
 
       if (activeRooms[room].players[player].hand.length === 0) {
+        io.in(roomKey).emit("updateRoom", activeRooms[room]);
         io.in(roomKey).emit("win", activeRooms[room].players[player]);
       } else {
-        nextTurn();
+        nextTurn(roomKey);
         handCipher = encrypt(activeRooms[room].players[player]);
       }
     }
@@ -549,14 +550,13 @@ io.on("connection", function (socket) {
       activeRooms[room].currentCard = playedCard;
 
       io.in(roomKey).emit("updateRoom", activeRooms[room]);
-
-      /* io.in(roomKey).emit("updatePlayers", activeRooms[room]);
-      io.in(roomKey).emit("currentCard", activeRooms[room]);*/
+      io.in(roomKey).emit("updatePlayers", activeRooms[room]);
+      io.in(roomKey).emit("currentCard", activeRooms[room]);
       socket.emit("hand", activeRooms[room].players[player].hand);
 
       activeRooms[room].skipPlayed = true;
 
-      nextTurn();
+      nextTurn(roomKey);
     }
   });
 
@@ -605,9 +605,136 @@ io.on("connection", function (socket) {
       io.in(roomKey).emit("updateRoom", activeRooms[room]);
 
       socket.emit("hand", activeRooms[room].players[player].hand);
-      nextTurn();
+      nextTurn(roomKey);
       log();
     }
+  });
+
+  socket.on("restart", function () {
+    var player = findGlobalPlayerIndex();
+    var roomKey = players[player].roomKey;
+    var room = findActiveRoomIndex(roomKey);
+    player = findRoomPlayerIndex(room);
+
+    activeRooms[room].deck = [
+      "r0",
+      "r1",
+      "r1",
+      "r2",
+      "r2",
+      "r3",
+      "r3",
+      "r4",
+      "r4",
+      "r5",
+      "r5",
+      "r6",
+      "r6",
+      "r7",
+      "r7",
+      "r8",
+      "r8",
+      "r9",
+      "r9",
+      "rr",
+      "rr",
+      "rd",
+      "rd",
+      "rs",
+      "rs",
+      "y0",
+      "y1",
+      "y1",
+      "y2",
+      "y2",
+      "y3",
+      "y3",
+      "y4",
+      "y4",
+      "y5",
+      "y5",
+      "y6",
+      "y6",
+      "y7",
+      "y7",
+      "y8",
+      "y8",
+      "y9",
+      "y9",
+      "yr",
+      "yr",
+      "yd",
+      "yd",
+      "ys",
+      "ys",
+      "b0",
+      "b1",
+      "b1",
+      "b2",
+      "b2",
+      "b3",
+      "b3",
+      "b4",
+      "b4",
+      "b5",
+      "b5",
+      "b6",
+      "b6",
+      "b7",
+      "b7",
+      "b8",
+      "b8",
+      "b9",
+      "b9",
+      "br",
+      "br",
+      "bd",
+      "bd",
+      "bs",
+      "bs",
+      "g0",
+      "g1",
+      "g1",
+      "g2",
+      "g2",
+      "g3",
+      "g3",
+      "g4",
+      "g4",
+      "g5",
+      "g5",
+      "g6",
+      "g6",
+      "g7",
+      "g7",
+      "g8",
+      "g8",
+      "g9",
+      "g9",
+      "gr",
+      "gr",
+      "gd",
+      "gd",
+      "gs",
+      "gs",
+      "ww",
+      "ww",
+      "ww",
+      "ww",
+      "wd",
+      "wd",
+      "wd",
+      "wd",
+    ];
+
+    activeRooms[room].discarded = [];
+
+    for (var i = 0; i < activeRooms[room].players.length; i++) {
+      activeRooms[room].players[i].hand = [];
+    }
+    console.log("restartGame");
+
+    io.in(roomKey).emit("gameStart", activeRooms[room]);
   });
 
   socket.on("disconnect", function () {
@@ -652,6 +779,13 @@ io.on("connection", function (socket) {
       room = findActiveRoomIndex(roomKey);
 
       if (room != -1) {
+        if (
+          activeRooms[room].players[activeRooms[room].playerTurn].id ===
+          removedPlayer[0].id
+        ) {
+          nextTurn(roomKey);
+        }
+
         for (
           var i = 0;
           i < activeRooms[room].players[player].hand.length;
@@ -681,6 +815,7 @@ io.on("connection", function (socket) {
           activeRooms.splice(room, 1);
         }
         io.in(roomKey).emit("updateRoom", activeRooms[room]);
+        io.in(roomKey).emit("updatePlayers", activeRooms[room]);
       }
     }
 

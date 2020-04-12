@@ -6,6 +6,7 @@ $(function () {
   $("#lobbySelect").hide();
   $("#lobby").hide();
   $("#roomSelect").hide();
+  $(".gameOver").hide();
 
   var userName;
   var ID;
@@ -160,6 +161,8 @@ $(function () {
     $("#lobby").hide();
     $("main").show();
     $("#wildSelect").hide();
+    $(".gameOver").hide();
+    $("#playAgain").hide();
 
     for (var i = 0; i < room.players.length; i++) {
       $("#playersDisplay").append(
@@ -282,11 +285,24 @@ $(function () {
   }
 
   socket.on("win", function (player) {
+    $("main").hide();
+    $(".gameOver").show();
+    $("#playAgain").hide();
     if (userName != player.userName) {
-      $("#currentPlayer").text(player.userName + " Wins!");
+      $("#winner").text(player.userName + " Wins!");
+      $("#confetti").hide();
     } else if (userName === player.userName) {
-      $("#currentPlayer").text("You Win!");
+      $("#winner").text("You Win!");
+      $("#loser").hide();
     }
+
+    if (ID === gameRoom.host.id) {
+      $("#playAgain").show();
+    }
+  });
+
+  $("#playAgain").on("click", function () {
+    socket.emit("restart");
   });
 
   socket.on("invalidRoom", function () {
