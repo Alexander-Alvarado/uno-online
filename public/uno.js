@@ -235,8 +235,10 @@ $(function () {
     $("#deckCount").text(room.deck.length);
   });
 
-  socket.on("newTurn", function (player) {
-    $("#currentPlayer").text(player.userName + "'s turn");
+  socket.on("newTurn", function (room) {
+    $("#currentPlayer").text(
+      room.players[room.playerTurn].userName + "'s turn"
+    );
   });
 
   socket.on("updateRoom", function (room) {

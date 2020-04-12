@@ -439,7 +439,7 @@ io.on("connection", function (socket) {
     activeRooms[room].skipPlayed = false;
 
     io.in(roomKey).emit("updateRoom", activeRooms[room]);
-    io.in(roomKey).emit("newTurn", activeRooms[room].players[playerTurn]);
+    io.in(roomKey).emit("newTurn", activeRooms[room]); //.players[playerTurn]);
     io.in(roomKey).emit("yourTurn", activeRooms[room]);
 
     //log();
@@ -725,10 +725,13 @@ io.on("connection", function (socket) {
     var room;
 
     if (player != -1) {
+      //console.log("before removing:", players[player].id);
+      log();
+
       roomKey = players[player].roomKey;
       room = findJoinableRoomIndex(roomKey);
 
-      var removedPlayer = players[player];
+      var removedPlayer = players.splice(player, 1); //players[player];
 
       if (room != -1) {
         joinableRooms[room].players.splice(
@@ -754,56 +757,64 @@ io.on("connection", function (socket) {
         if (joinableRooms[room].players.length === 0) {
           joinableRooms.splice(room, 1);
         }
+
         io.in(roomKey).emit("roomInfo", joinableRooms[room]);
       }
 
-      room = findActiveRoomIndex(roomKey);
+      if (room === -1) {
+        room = findActiveRoomIndex(roomKey);
+        player = findRoomPlayerIndex(room);
 
-      if (room != -1) {
-        if (activeRooms[room].players.length > 1) {
-          try {
-            if (
-              activeRooms[room].players[activeRooms[room].playerTurn].id ===
-              removedPlayer.id
-            ) {
-              nextTurn(roomKey);
+        if (room != -1 && player != -1) {
+          /* console.log(
+            "found player index:",
+            player,
+            "id:",
+            activeRooms[room].players[player].id
+          ); */
+
+          if (activeRooms[room].players.length > 1) {
+            if (player < activeRooms[room].playerTurn) {
+              activeRooms[room].playerTurn--;
             }
-          } catch (TypeError) {}
 
-          for (
-            var i = 0;
-            i < activeRooms[room].players[player].hand.length;
-            i++
+            for (
+              var i = 0;
+              i < activeRooms[room].players[player].hand.length;
+              i++
+            ) {
+              activeRooms[room].discarded.push(
+                activeRooms[room].players[player].hand[i]
+              );
+            }
+          }
+
+          activeRooms[room].players.splice(player, 1);
+
+          if (
+            activeRooms[room].host === removedPlayer &&
+            activeRooms[room].players.length != 0
           ) {
-            activeRooms[room].discarded.push(
-              activeRooms[room].players[player].hand[i]
-            );
+            activeRooms[room].host = activeRooms[room].players[0];
+            var hostId = ("${%s}", activeRooms[room].host.id);
+            io.to(hostId).emit("host");
+          }
+
+          if (activeRooms[room].players.length === 0) {
+            activeRooms.splice(room, 1);
+          } else {
+            io.in(roomKey).emit("updatePlayers", activeRooms[room]);
+            io.in(roomKey).emit("updateRoom", activeRooms[room]);
+            io.in(roomKey).emit("newTurn", activeRooms[room]); //.players[playerTurn]);
+
+            io.in(roomKey).emit("yourTurn", activeRooms[room]);
           }
         }
-        activeRooms[room].players.splice(
-          activeRooms[room].players.findIndex((i) => i.id === removedPlayer.id),
-          1
-        );
-
-        if (
-          activeRooms[room].host === removedPlayer &&
-          activeRooms[room].players.length != 0
-        ) {
-          activeRooms[room].host = activeRooms[room].players[0];
-          var hostId = ("${%s}", activeRooms[room].host.id);
-          io.to(hostId).emit("host");
-        }
-
-        if (activeRooms[room].players.length === 0) {
-          activeRooms.splice(room, 1);
-        }
-
-        io.in(roomKey).emit("updateRoom", activeRooms[room]);
-        io.in(roomKey).emit("updatePlayers", activeRooms[room]);
-        players.splice(player, 1);
       }
     }
 
+    //console.log("after remove");
+    log();
     socket.broadcast.emit("availableRooms", joinableRooms);
 
     //log();
