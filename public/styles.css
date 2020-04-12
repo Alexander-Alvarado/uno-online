@@ -61,6 +61,12 @@ ul {
   text-align: center;
 }
 
+#playerHand {
+  position: relative;
+  left: 10%;
+  width: 1500px;
+}
+
 .hand img {
   width: 100px;
   height: 150px;
@@ -75,17 +81,34 @@ ul {
 
 .deck img {
   position: relative;
-  width: 250px;
-  z-index: 1;
 }
 
 .deck p {
   position: relative;
   z-index: 2;
-  bottom: 55%;
-  right: 15.5%;
+  bottom: 53%;
+  left: 72%;
   padding: 0px;
   margin: 0px;
+  width: 80px;
+}
+
+#deckImg {
+  width: 250px;
+  z-index: 1;
+  left: 40.5%;
+}
+
+#drawClick {
+  width: 250px;
+  z-index: 3;
+  opacity: 0%;
+}
+
+.arrows {
+  position: relative;
+  width: 150px;
+  left: 2%;
 }
 
 .current {
@@ -101,16 +124,28 @@ ul {
 }
 
 .wild {
+  position: relative;
   grid-area: wild;
   text-align: center;
 }
 
+.wild p {
+  position: relative;
+  left: 9%;
+}
+
+.colorSelect {
+  position: relative;
+  left: 10%;
+}
+
 .emoji {
   font-size: 225px;
+  margin: 100px;
 }
 
 .gameOver {
-  grid-area: current;
+  height: 300px;
   text-align: center;
 }
 
@@ -121,4 +156,6 @@ ul {
     "players current wild"
     "players current wild"
     "hand hand hand";
+
+  grid-template-columns: 33% 33% 33%;
 }

@@ -17,19 +17,39 @@
     <script src="uno.js"></script>
 
     <main class="container">
-      <div id="playersDisplay" class="playersDisplay"></div>
-      <div id="playerHand" class="hand"></div>
+      <div class="playersDisplay">
+        <div id="playersDisplay"></div>
+        <img
+          src="./cards/up.svg"
+          class="arrows"
+          id="up"
+          alt="reverse order"
+          style=""
+        />
+        <img
+          src="./cards/down.svg"
+          class="arrows"
+          id="down"
+          alt="normal order"
+          style="display: none;"
+        />
+      </div>
+      <div class="hand">
+        <div id="playerHand"></div>
+      </div>
       <div class="current">
         <p id="currentPlayer" class="text">Current player turn</p>
         <img src="#" alt="current card" class="currentCard" id="currentCard" />
       </div>
       <div class="deck" id="deck">
-        <img src="./cards/deck.svg" alt="card deck" />
+        <img src="./cards/deck.svg" id="deckImg" alt="card deck" />
+        <img src="./cards/deck.svg" id="drawClick" alt="card deck" />
+
         <p id="deckCount" class="text"></p>
       </div>
       <div id="wildSelect" class="wild">
         <p class="text">Select new color</p>
-        <div id="colorSelect">
+        <div id="colorSelect" class="colorSelect">
           <img src="./cards/r.svg" alt="r" />
           <img src="./cards/b.svg" alt="b" />
           <img src="./cards/y.svg" alt="y" />

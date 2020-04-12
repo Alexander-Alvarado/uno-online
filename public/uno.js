@@ -11,11 +11,25 @@ $(function () {
   var userName;
   var ID;
   var gameRoom;
+  var bannedChars = "(){}<>;,.&=+-";
 
   $("#nameSubmit").click(function () {
     if ($("#name").val() != "") {
       userName = $("#name").val();
-      newPlayer(userName);
+      var containsBanned = false;
+      for (var i = 0; i < bannedChars.length; i++) {
+        containsBanned = userName.includes(bannedChars[i]);
+        if (containsBanned === true) {
+          break;
+        }
+      }
+      if (userName.length > 12) {
+        alert("User name is greater than 12 characters");
+      } else if (containsBanned === true) {
+        alert("User name contains banned characters");
+      } else {
+        newPlayer(userName);
+      }
     }
   });
 
@@ -23,7 +37,20 @@ $(function () {
     keydown: function (event) {
       if (event.which == 13 && $("#name").val() != "") {
         userName = $("#name").val();
-        newPlayer(userName);
+        var containsBanned = false;
+        for (var i = 0; i < bannedChars.length; i++) {
+          containsBanned = userName.includes(bannedChars[i]);
+          if (containsBanned === true) {
+            break;
+          }
+        }
+        if (userName.length > 12) {
+          alert("User name is greater than 12 characters");
+        } else if (containsBanned === true) {
+          alert("User name contains banned characters");
+        } else {
+          newPlayer(userName);
+        }
       }
     },
   });
@@ -87,7 +114,7 @@ $(function () {
   });
 
   socket.on("roomFull", function () {
-    console.log("Room Closed");
+    alert("Room is full");
 
     $("#lobby").hide();
     $("#roomSelect").show();
@@ -153,7 +180,6 @@ $(function () {
   });
 
   socket.on("host", function () {
-    console.log("you are the new host");
     $("#startGame").show();
   });
 
@@ -210,11 +236,18 @@ $(function () {
 
   socket.on("updateRoom", function (room) {
     gameRoom = room;
+
+    if (gameRoom.reverseOrder === false) {
+      $("#down").show();
+      $("#up").hide();
+    } else if (gameRoom.reverseOrder === true) {
+      $("#down").hide();
+      $("#up").show();
+    }
   });
 
-  $("#deck").on("click", function () {
+  $("#drawClick").on("click", function () {
     if (ID === gameRoom.players[gameRoom.playerTurn].id) {
-      console.log("clicked draw");
       socket.emit("draw");
     }
   });
@@ -245,7 +278,6 @@ $(function () {
           playedCard.substring(0, 1) === "w" &&
           ID === gameRoom.players[gameRoom.playerTurn].id
         ) {
-          console.log("wild");
           socket.emit("handleTurn", playedCard);
           wild(playedCard);
         }
@@ -259,10 +291,8 @@ $(function () {
           ID === gameRoom.players[gameRoom.playerTurn].id
         ) {
           if (playedCard.substring(1, 2) === "s") {
-            console.log("skip");
-            socket.emit("skip", playedCard);
+            socket.emit("handleTurn", playedCard);
           } else {
-            console.log("normal card");
             socket.emit("handleTurn", playedCard);
           }
         }
@@ -296,10 +326,6 @@ $(function () {
       $("#loser").hide();
       $("#playAgain").show();
     }
-
-    /* if (ID === gameRoom.host.id) {
-      $("#playAgain").show();
-    } */
   });
 
   $("#playAgain").on("click", function () {
@@ -313,7 +339,6 @@ $(function () {
   });
 
   socket.on("invalidRoom", function () {
-    console.log("room not found");
     $("#lobby").hide();
     $("#roomSelect").show();
   });
