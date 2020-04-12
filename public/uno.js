@@ -362,10 +362,10 @@ $(function () {
     $(".gameOver").show();
     $("#playAgain").hide();
     $(".emoji").show();
-    if (userName != player.userName) {
+    if (ID != player.if) {
       $("#winner").text(player.userName + " Wins!");
       $("#confetti").hide();
-    } else if (userName === player.userName) {
+    } else if (ID === player.id) {
       $("#winner").text("You Win!");
       $("#loser").hide();
       $("#playAgain").show();
