@@ -12,7 +12,7 @@ $(function () {
   var userName;
   var ID;
   var gameRoom;
-  var bannedChars = "(){}<>;,.&=+-";
+  var bannedChars = "(){}<>;,.&=+ ";
 
   $("#nameSubmit").click(function () {
     if ($("#name").val() != "") {
