@@ -383,7 +383,6 @@ io.on("connection", function (socket) {
     var roomKey = players[player].roomKey;
     var room = findActiveRoomIndex(roomKey);
     player = findRoomPlayerIndex(room);
-    handPlain = decrypt(activeRooms[room].players[player]);
 
     activeRooms[room].skipPlayed = false;
 
