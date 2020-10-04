@@ -623,8 +623,6 @@ io.on("connection", function (socket) {
     var room;
 
     if (player != -1) {
-      log();
-
       roomKey = players[player].roomKey;
       room = findJoinableRoomIndex(roomKey);
 
@@ -689,7 +687,6 @@ io.on("connection", function (socket) {
       }
     }
 
-    log();
     socket.broadcast.emit("availableRooms", joinableRooms);
   });
 });
