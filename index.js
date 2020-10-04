@@ -18,7 +18,6 @@ var key = process.env.Key || "12345678900987654321123456789001";
 
 io.on("connection", function (socket) {
   var iv = crypto.randomBytes(16);
-  var handCipher = "";
 
   socket.on("newGame", function (data) {
     var roomKey;
@@ -180,7 +179,6 @@ io.on("connection", function (socket) {
 
         socket.broadcast.emit("availableRooms", joinableRooms);
         io.in(players[player].roomKey).emit("roomInfo", joinableRooms[room]);
-        //log();
       } else if (joinableRooms[room].status === "closed") {
         socket.emit("roomFull");
       }
@@ -296,7 +294,6 @@ io.on("connection", function (socket) {
       io.in(roomKey).emit("updateRoom", activeRooms[room]);
 
       socket.emit("hand", activeRooms[room].players[player].hand);
-      handCipher = encrypt(activeRooms[room].players[player]);
     }
   });
 
@@ -334,29 +331,7 @@ io.on("connection", function (socket) {
     io.in(roomKey).emit("updateRoom", activeRooms[room]);
 
     socket.emit("hand", activeRooms[room].players[player].hand);
-    handCipher = encrypt(activeRooms[room].players[player]);
   });
-
-  function encrypt(player) {
-    var cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
-    var message = "";
-
-    for (var i = 0; i < player.hand.length; i++) {
-      message += player.hand[i];
-    }
-
-    var cipherText = Buffer.concat([cipher.update(message, "utf-8"), cipher.final()]).toString("hex");
-
-    return cipherText;
-  }
-
-  function decrypt(player) {
-    var decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
-
-    var decrypted = Buffer.concat([decipher.update(handCipher, "hex"), decipher.final()]).toString("utf-8");
-
-    return decrypted;
-  }
 
   function nextTurn(roomKey) {
     var player = findGlobalPlayerIndex();
@@ -462,7 +437,6 @@ io.on("connection", function (socket) {
 
         hasUno = [];
         nextTurn(roomKey);
-        handCipher = encrypt(activeRooms[room].players[player]);
       }
     }
   });
@@ -508,8 +482,6 @@ io.on("connection", function (socket) {
         activeRooms[room].wildType = "";
 
         nextTurn(roomKey);
-
-        handCipher = encrypt(activeRooms[room].players[player]);
       }
     }
   });
