@@ -5,9 +5,7 @@ const crypto = require("crypto");
 var app = express();
 var PORT = process.env.PORT || 5000;
 
-var server = app.listen(PORT, function () {
-  //console.log("listening on port", PORT);
-});
+var server = app.listen(PORT, function () {});
 
 app.use(express.static(__dirname + "/public/"));
 
@@ -20,7 +18,6 @@ var key = process.env.Key || "12345678900987654321123456789001";
 
 io.on("connection", function (socket) {
   var iv = crypto.randomBytes(16);
-  var handPlain = "";
   var handCipher = "";
 
   socket.on("newGame", function (data) {
@@ -158,13 +155,11 @@ io.on("connection", function (socket) {
       gameStarted: false,
     });
 
-    var room =
-      joinableRooms[joinableRooms.findIndex((i) => i.room === roomKey)];
+    var room = joinableRooms[joinableRooms.findIndex((i) => i.room === roomKey)];
     socket.broadcast.emit("availableRooms", joinableRooms);
 
     socket.join(players[player].roomKey);
     io.in(players[player].roomKey).emit("roomInfo", room);
-    //log();
   });
 
   socket.on("searching", function () {
@@ -174,10 +169,7 @@ io.on("connection", function (socket) {
     var player;
     var room = findJoinableRoomIndex(data.roomKey);
     try {
-      if (
-        joinableRooms[room].players.length < 4 &&
-        joinableRooms[room].status === "open"
-      ) {
+      if (joinableRooms[room].players.length < 4 && joinableRooms[room].status === "open") {
         newPlayer(data.userName, data.roomKey);
         player = findGlobalPlayerIndex();
         joinableRooms[room].players.push(players[player]);
@@ -205,7 +197,6 @@ io.on("connection", function (socket) {
       hand: [],
     });
     socket.emit("userID", socket.id);
-    //log();
   }
 
   function findGlobalPlayerIndex() {
@@ -229,7 +220,6 @@ io.on("connection", function (socket) {
     var roomKey = players[player].roomKey;
     var room = findJoinableRoomIndex(roomKey);
 
-    //console.clear();
     if (restart != true) {
       joinableRooms[room].status = "closed";
       joinableRooms[room].gameStarted = true;
@@ -249,9 +239,7 @@ io.on("connection", function (socket) {
     activeRooms[room].currentCard = activeRooms[room].deck[card];
 
     activeRooms[room].deck.splice(
-      activeRooms[room].deck.findIndex(
-        (i) => i === activeRooms[room].deck[card]
-      ),
+      activeRooms[room].deck.findIndex((i) => i === activeRooms[room].deck[card]),
       1
     );
 
@@ -267,9 +255,7 @@ io.on("connection", function (socket) {
   });
 
   function log() {
-    console.log(
-      "-----------------------------------------------------------------------------------------"
-    );
+    console.log("-----------------------------------------------------------------------------------------");
     console.log("active players:", players);
     console.log("joinable rooms:", joinableRooms);
     console.log("active rooms:", activeRooms);
@@ -286,13 +272,6 @@ io.on("connection", function (socket) {
 
       activeRooms[room].players[player].hand.push(activeRooms[room].deck[card]);
 
-      /*  console.log(
-        activeRooms[room].players[player].userName,
-        "drew:",
-        activeRooms[room].deck[card],
-        "\n"
-      ); */
-
       activeRooms[room].deck.splice(card, 1);
 
       if (activeRooms[room].deck.length === 0) {
@@ -304,8 +283,6 @@ io.on("connection", function (socket) {
 
       for (var i = 0; i < activeRooms[room].players.length; i++) {
         if (activeRooms[room].players[i].hand.length === 1) {
-          //console.log(activeRooms[room].players[i].userName, "has uno");
-
           hasUno.push(activeRooms[room].players[i]);
         }
       }
@@ -335,9 +312,7 @@ io.on("connection", function (socket) {
       activeRooms[room].players[player].hand.push(activeRooms[room].deck[card]);
 
       activeRooms[room].deck.splice(
-        activeRooms[room].deck.findIndex(
-          (i) => i === activeRooms[room].deck[card]
-        ),
+        activeRooms[room].deck.findIndex((i) => i === activeRooms[room].deck[card]),
         1
       );
     }
@@ -346,8 +321,6 @@ io.on("connection", function (socket) {
 
     for (var i = 0; i < activeRooms[room].players.length; i++) {
       if (activeRooms[room].players[i].hand.length === 1) {
-        //console.log(activeRooms[room].players[i].userName, "has uno");
-
         hasUno.push(activeRooms[room].players[i]);
       }
     }
@@ -361,7 +334,6 @@ io.on("connection", function (socket) {
     io.in(roomKey).emit("updateRoom", activeRooms[room]);
 
     socket.emit("hand", activeRooms[room].players[player].hand);
-    //log();
     handCipher = encrypt(activeRooms[room].players[player]);
   });
 
@@ -373,22 +345,15 @@ io.on("connection", function (socket) {
       message += player.hand[i];
     }
 
-    var cipherText = Buffer.concat([
-      cipher.update(message, "utf-8"),
-      cipher.final(),
-    ]).toString("hex");
+    var cipherText = Buffer.concat([cipher.update(message, "utf-8"), cipher.final()]).toString("hex");
 
-    //console.log(player.userName + "'s encrypted hand:", cipherText);
     return cipherText;
   }
 
   function decrypt(player) {
     var decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
 
-    var decrypted = Buffer.concat([
-      decipher.update(handCipher, "hex"),
-      decipher.final(),
-    ]).toString("utf-8");
+    var decrypted = Buffer.concat([decipher.update(handCipher, "hex"), decipher.final()]).toString("utf-8");
 
     return decrypted;
   }
@@ -399,9 +364,7 @@ io.on("connection", function (socket) {
     player = findRoomPlayerIndex(room);
 
     if (activeRooms[room].firstTurn === true) {
-      activeRooms[room].playerTurn = Math.floor(
-        Math.random() * activeRooms[room].players.length
-      );
+      activeRooms[room].playerTurn = Math.floor(Math.random() * activeRooms[room].players.length);
       activeRooms[room].firstTurn = false;
     } else if (activeRooms[room].firstTurn === false) {
       var turnMove = 1;
@@ -413,10 +376,7 @@ io.on("connection", function (socket) {
       if (activeRooms[room].reverseOrder === false) {
         for (var i = 0; i < turnMove; i++) {
           activeRooms[room].playerTurn++;
-          if (
-            activeRooms[room].playerTurn >
-            activeRooms[room].players.length - 1
-          ) {
+          if (activeRooms[room].playerTurn > activeRooms[room].players.length - 1) {
             activeRooms[room].playerTurn = 0;
           }
         }
@@ -439,10 +399,8 @@ io.on("connection", function (socket) {
     activeRooms[room].skipPlayed = false;
 
     io.in(roomKey).emit("updateRoom", activeRooms[room]);
-    io.in(roomKey).emit("newTurn", activeRooms[room]); //.players[playerTurn]);
+    io.in(roomKey).emit("newTurn", activeRooms[room]);
     io.in(roomKey).emit("yourTurn", activeRooms[room]);
-
-    //log();
   }
 
   socket.on("handleTurn", function (playedCard) {
@@ -454,9 +412,7 @@ io.on("connection", function (socket) {
 
     activeRooms[room].skipPlayed = false;
 
-    var foundCard = activeRooms[room].players[player].hand.findIndex(
-      (i) => i === playedCard
-    );
+    var foundCard = activeRooms[room].players[player].hand.findIndex((i) => i === playedCard);
 
     if (playedCard.substr(0, 1) === "w") {
       activeRooms[room].wildType = playedCard;
@@ -466,42 +422,21 @@ io.on("connection", function (socket) {
       activeRooms[room].skipPlayed = true;
     }
 
-    if (
-      player === activeRooms[room].playerTurn &&
-      playedCard.substr(0, 1) != "w" &&
-      foundCard != -1
-    ) {
+    if (player === activeRooms[room].playerTurn && playedCard.substr(0, 1) != "w" && foundCard != -1) {
       if (activeRooms[room].currentCard.length === 2) {
         activeRooms[room].discarded.push(activeRooms[room].currentCard);
       }
 
-      /*  console.log(
-        activeRooms[room].players[player].userName,
-        "played",
-        playedCard,
-        "found in hand at",
-        foundCard,
-        "\n"
-      ); */
-
       activeRooms[room].players[player].hand.splice(
-        activeRooms[room].players[player].hand.findIndex(
-          (i) => i === playedCard
-        ),
+        activeRooms[room].players[player].hand.findIndex((i) => i === playedCard),
         1
       );
 
       activeRooms[room].currentCard = playedCard;
 
-      if (
-        playedCard.substr(1, 2) === "r" &&
-        activeRooms[room].reverseOrder === false
-      ) {
+      if (playedCard.substr(1, 2) === "r" && activeRooms[room].reverseOrder === false) {
         activeRooms[room].reverseOrder = true;
-      } else if (
-        playedCard.substr(1, 2) === "r" &&
-        activeRooms[room].reverseOrder === true
-      ) {
+      } else if (playedCard.substr(1, 2) === "r" && activeRooms[room].reverseOrder === true) {
         activeRooms[room].reverseOrder = false;
       }
 
@@ -519,8 +454,6 @@ io.on("connection", function (socket) {
 
         for (var i = 0; i < activeRooms[room].players.length; i++) {
           if (activeRooms[room].players[i].hand.length === 1) {
-            //console.log(activeRooms[room].players[i].userName, "has uno");
-
             hasUno.push(activeRooms[room].players[i]);
           }
         }
@@ -541,17 +474,13 @@ io.on("connection", function (socket) {
     player = findRoomPlayerIndex(room);
 
     if (player === activeRooms[room].playerTurn) {
-      var foundCard = activeRooms[room].players[player].hand.findIndex(
-        (i) => i === activeRooms[room].wildType
-      );
+      var foundCard = activeRooms[room].players[player].hand.findIndex((i) => i === activeRooms[room].wildType);
 
       if (foundCard != -1) {
         activeRooms[room].discarded.push(activeRooms[room].wildType);
 
         activeRooms[room].players[player].hand.splice(
-          activeRooms[room].players[player].hand.findIndex(
-            (i) => i === activeRooms[room].wildType
-          ),
+          activeRooms[room].players[player].hand.findIndex((i) => i === activeRooms[room].wildType),
           1
         );
       }
@@ -569,8 +498,6 @@ io.on("connection", function (socket) {
 
         for (var i = 0; i < activeRooms[room].players.length; i++) {
           if (activeRooms[room].players[i].hand.length === 1) {
-            //console.log(activeRooms[room].players[i].userName, "has uno");
-
             hasUno.push(activeRooms[room].players[i]);
           }
         }
@@ -725,26 +652,20 @@ io.on("connection", function (socket) {
     var room;
 
     if (player != -1) {
-      //console.log("before removing:", players[player].id);
       log();
 
       roomKey = players[player].roomKey;
       room = findJoinableRoomIndex(roomKey);
 
-      var removedPlayer = players.splice(player, 1); //players[player];
+      var removedPlayer = players.splice(player, 1);
 
       if (room != -1) {
         joinableRooms[room].players.splice(
-          joinableRooms[room].players.findIndex(
-            (i) => i.id === removedPlayer.id
-          ),
+          joinableRooms[room].players.findIndex((i) => i.id === removedPlayer.id),
           1
         );
 
-        if (
-          joinableRooms[room].host === removedPlayer &&
-          joinableRooms[room].players.length != 0
-        ) {
+        if (joinableRooms[room].host === removedPlayer && joinableRooms[room].players.length != 0) {
           joinableRooms[room].host = joinableRooms[room].players[0];
           var hostId = ("${%s}", joinableRooms[room].host.id);
           io.to(hostId).emit("host");
@@ -766,35 +687,19 @@ io.on("connection", function (socket) {
         player = findRoomPlayerIndex(room);
 
         if (room != -1 && player != -1) {
-          /* console.log(
-            "found player index:",
-            player,
-            "id:",
-            activeRooms[room].players[player].id
-          ); */
-
           if (activeRooms[room].players.length > 1) {
             if (player < activeRooms[room].playerTurn) {
               activeRooms[room].playerTurn--;
             }
 
-            for (
-              var i = 0;
-              i < activeRooms[room].players[player].hand.length;
-              i++
-            ) {
-              activeRooms[room].discarded.push(
-                activeRooms[room].players[player].hand[i]
-              );
+            for (var i = 0; i < activeRooms[room].players[player].hand.length; i++) {
+              activeRooms[room].discarded.push(activeRooms[room].players[player].hand[i]);
             }
           }
 
           activeRooms[room].players.splice(player, 1);
 
-          if (
-            activeRooms[room].host === removedPlayer &&
-            activeRooms[room].players.length != 0
-          ) {
+          if (activeRooms[room].host === removedPlayer && activeRooms[room].players.length != 0) {
             activeRooms[room].host = activeRooms[room].players[0];
             var hostId = ("${%s}", activeRooms[room].host.id);
             io.to(hostId).emit("host");
@@ -805,7 +710,7 @@ io.on("connection", function (socket) {
           } else {
             io.in(roomKey).emit("updatePlayers", activeRooms[room]);
             io.in(roomKey).emit("updateRoom", activeRooms[room]);
-            io.in(roomKey).emit("newTurn", activeRooms[room]); //.players[playerTurn]);
+            io.in(roomKey).emit("newTurn", activeRooms[room]);
 
             io.in(roomKey).emit("yourTurn", activeRooms[room]);
           }
@@ -813,10 +718,7 @@ io.on("connection", function (socket) {
       }
     }
 
-    //console.log("after remove");
     log();
     socket.broadcast.emit("availableRooms", joinableRooms);
-
-    //log();
   });
 });
