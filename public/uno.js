@@ -12,7 +12,7 @@ $(function () {
   var userName;
   var ID;
   var gameRoom;
-  var bannedChars = "(){}<>;,.&=+ ";
+  var bannedChars = "(){}<>;,.&=+";
 
   $("#nameSubmit").click(function () {
     if ($("#name").val() != "") {
@@ -221,13 +221,7 @@ $(function () {
   socket.on("hand", function (hand) {
     $("#playerHand").html("");
     for (var i = 0; i < hand.length; i++) {
-      $("#playerHand").append(
-        "<img src=./cards/" +
-          hand[i] +
-          ".svg alt=" +
-          hand[i] +
-          " class=card></img>"
-      );
+      $("#playerHand").append("<img src=./cards/" + hand[i] + ".svg alt=" + hand[i] + " class=card></img>");
     }
   });
 
@@ -236,9 +230,7 @@ $(function () {
   });
 
   socket.on("newTurn", function (room) {
-    $("#currentPlayer").text(
-      room.players[room.playerTurn].userName + "'s turn"
-    );
+    $("#currentPlayer").text(room.players[room.playerTurn].userName + "'s turn");
   });
 
   socket.on("updateRoom", function (room) {
@@ -269,10 +261,7 @@ $(function () {
         }
       }
 
-      if (
-        gameRoom.currentCard.length === 1 &&
-        gameRoom.discarded[gameRoom.discarded.length - 1] === "wd"
-      ) {
+      if (gameRoom.currentCard.length === 1 && gameRoom.discarded[gameRoom.discarded.length - 1] === "wd") {
         for (var i = 0; i < 4; i++) {
           socket.emit("draw");
         }
@@ -281,20 +270,15 @@ $(function () {
       $("#playerHand").on("click", "img", function () {
         var playedCard = $(this).attr("alt");
 
-        if (
-          playedCard.substring(0, 1) === "w" &&
-          ID === gameRoom.players[gameRoom.playerTurn].id
-        ) {
+        if (playedCard.substring(0, 1) === "w" && ID === gameRoom.players[gameRoom.playerTurn].id) {
           socket.emit("handleTurn", playedCard);
           wild(playedCard);
         }
 
         if (
           playedCard.substring(0, 1) != "w" &&
-          (playedCard.substring(0, 1) ===
-            $("#currentCard").attr("alt").substring(0, 1) ||
-            playedCard.substring(1, 2) ===
-              $("#currentCard").attr("alt").substring(1, 2)) &&
+          (playedCard.substring(0, 1) === $("#currentCard").attr("alt").substring(0, 1) ||
+            playedCard.substring(1, 2) === $("#currentCard").attr("alt").substring(1, 2)) &&
           ID === gameRoom.players[gameRoom.playerTurn].id
         ) {
           if (playedCard.substring(1, 2) === "s") {
