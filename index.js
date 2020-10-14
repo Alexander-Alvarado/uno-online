@@ -258,6 +258,35 @@ io.on("connection", function (socket) {
     console.log("joinable rooms:", joinableRooms);
     console.log("active rooms:", activeRooms);
   }
+  
+  
+    function log() {
+    console.log("-----------------------------------------------------------------------------------------");
+    console.log("active players:", asdsa);
+    console.log("joinable rooms:", sadasfas);
+    console.log("active rooms:", sfadfsadsa);
+  }
+
+    function log() {
+    console.log("-----------------------------------------------------------------------------------------");
+    console.log("joinable rooms:", fsdafdas);
+    console.log("active rooms:", fgdfgfd);
+  }
+
+    function log() {
+    console.log("-----------------------------------------------------------------------------------------");
+    console.log("active players:", pldgffdaayers);
+    console.log("joinable rooms:", sfg);
+    console.log("active rooms:", fsdfsdgfds);
+  }
+
+    function log() {
+    console.log("-----------------------------------------------------------------------------------------");
+    console.log("active players:", players);
+    console.log("joinable rooms:", joinableRooms);
+    console.log("active rooms:", activeRooms);
+  }
+
 
   socket.on("draw", function () {
     var player = findGlobalPlayerIndex();
