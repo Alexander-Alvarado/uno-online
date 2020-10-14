@@ -9,3 +9,5 @@ Give your friends your room key for easy joining.
 Wait for the room host to start the game.
 
 Each game room is capped at 4 players max.
+
+No wild cards.
