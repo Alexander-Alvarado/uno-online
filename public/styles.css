@@ -24,8 +24,8 @@ ul {
 }
 
 .playerList {
-  height: 150px;
-  width: 100px;
+  height: 300px;
+  width: 200x;
   background-image: url(./cards/back.svg);
   background-size: 100px 150px;
 }
