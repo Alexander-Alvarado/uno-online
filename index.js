@@ -197,6 +197,15 @@ io.on("connection", function (socket) {
     socket.emit("userID", socket.id);
   }
 
+  function newPlayer(data, roomKey) {
+    players.push({
+      id: socket.id,
+      userName: data,
+      roomKey: roomKey,
+      hand: [],
+    });
+    socket.emit("userID", socket.id);
+  }
   function findGlobalPlayerIndex() {
     return players.findIndex((i) => i.id === socket.id);
   }
@@ -285,6 +294,14 @@ io.on("connection", function (socket) {
         }
       }
 
+      
+      var hasUno = [];
+
+      for (var i = 0; i < activeRooms[room].players.length; i++) {
+        if (activeRooms[room].players[i].hand.length === 1) {
+          hasUno.push(activeRooms[room].players[i]);
+        }
+      }
       io.in(roomKey).emit("uno", hasUno);
 
       hasUno = [];
@@ -346,6 +363,15 @@ io.on("connection", function (socket) {
 
       if (activeRooms[room].skipPlayed === true) {
         turnMove = 2;
+      }
+
+      if (activeRooms[room].reverseOrder === false) {
+        for (var i = 0; i < turnMove; i++) {
+          activeRooms[room].playerTurn++;
+          if (activeRooms[room].playerTurn > activeRooms[room].players.length - 1) {
+            activeRooms[room].playerTurn = 0;
+          }
+        }
       }
 
       if (activeRooms[room].reverseOrder === false) {
