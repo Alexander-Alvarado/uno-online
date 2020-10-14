@@ -21,7 +21,7 @@ io.on("connection", function (socket) {
 
   socket.on("newGame", function (data) {
     var roomKey;
-
+//pretty cool game dude
     do {
       roomKey = Math.random().toString(36).substr(2, 5);
     } while (joinableRooms.includes(roomKey) === true);
