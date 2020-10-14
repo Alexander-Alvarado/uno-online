@@ -119,7 +119,6 @@ $(function () {
 
   socket.on("roomFull", function () {
     alert("Room is full");
-
     $("#lobby").hide();
     $("#roomSelect").show();
   });
@@ -346,12 +345,13 @@ $(function () {
     $("#playAgain").hide();
     $(".emoji").show();
     if (ID != player.id) {
-      $("#winner").text(player.userName + " Wins!");
-      $("#confetti").hide();
-    } else if (ID === player.id) {
-      $("#winner").text("You Win!");
-      $("#loser").hide();
-      $("#playAgain").show();
+    $("#winner").text(player.userName + " Wins!");
+    $("#confetti").hide();
+    }
+    else if (ID === player.id) {
+    $("#winner").text("You Win!");
+    $("#loser").hide();
+    $("#playAgain").show();
     }
   });
 
@@ -361,10 +361,9 @@ $(function () {
 
   socket.on("restart", function () {
     var restart = true;
-
     socket.emit("gameStart", restart);
   });
-
+//Turn on the socket
   socket.on("invalidRoom", function () {
     $("#lobby").hide();
     $("#roomSelect").show();
